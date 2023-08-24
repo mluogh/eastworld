@@ -11,11 +11,12 @@ Agents to your video games, visual novels, and other forms of interactive media.
 
 This framework has two goals
 
-- to abstract away the complexities of prompt-engineering detailed Agents and
+- To abstract away the complexities of prompt-engineering detailed Agents and
   elaborate Storylines using an easy to use no-code dashboard
 
-- using dashboard output, expose powerful functionalities - Agent Actions,
-  Emotion Queries, Player Guardrails, etc. - in a simple small API & server
+- To enable a variety of user-agent interactions out of the box beyond just
+  chat - Agent Actions, Emotion Queries, Player Guardrails, etc. - and expose it
+  in a simple small API
 
 <figure>
   <p align="center">
