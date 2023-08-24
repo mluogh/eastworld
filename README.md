@@ -3,10 +3,6 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/github/actions/workflow/status/mluogh/eastworld/main.yml" />
-</p>
-
-<p align="center">
   <a href="https://discord.gg/FYGqsfMp">💬 Get help on discord</a>
 </p>
 
