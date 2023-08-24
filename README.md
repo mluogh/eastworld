@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/github/actions/workflow/status/mluogh/eastworld/main" />
+  <img src="https://img.shields.io/github/actions/workflow/status/mluogh/eastworld/main.yml" />
 </p>
 
 <p align="center">
