@@ -1,0 +1,81 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - main
+
+name: Continuous Integration
+
+jobs:
+  server-presubmit:
+    name: server-presubmit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.11"
+
+      - uses: pdm-project/setup-pdm@v3
+        name: Setup PDM
+        id: setup-pdm
+        with:
+          python-version: "3.10.11" # Version range or exact version of a Python version to use, the same as actions/setup-python
+          architecture: x64 # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
+          prerelease: false # Allow prerelease versions of PDM to be installed
+          enable-pep582: false # Enable PEP 582 package loading globally
+          allow-python-prereleases: false # Allow prerelease versions of Python to be installed. For example if only 3.12-dev is available, 3.12 will fallback to 3.12-dev
+          update-python: true # Update the environment with the requested python version
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          pdm install
+          # For some reason, ruff needs pipx installed
+          pip install pipx
+
+      - name: Ruff
+        uses: chartboost/ruff-action@v1
+
+      - name: Pyright
+        uses: jakebailey/pyright-action@v1
+        with:
+          python-path: .venv/bin/python
+
+      - name: Tests
+        run: |
+          pdm run python -m pytest -s
+
+  client-presubmit:
+    name: client-presubmit
+    runs-on:
+      ubuntu-latest
+      # TODO: run tests
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
+
+      # ESLint and Prettier must be in `package.json`
+      - name: Install Node.js dependencies
+        run: cd app && npm ci
+
+      # - name: Install linters
+      #   run: |
+      #     npx install eslint
+      #     npx install prettier
+
+      - name: Lint
+        run: |
+          npx prettier . --check
+          npx eslint . --max-warnings=0
+
+  # TODO: client-presubmit:

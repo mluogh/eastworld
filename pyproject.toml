@@ -1,0 +1,33 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Michael Luo", email = "deltameter@gmail.com"},
+]
+dependencies = [
+    "openai>=0.27.5",
+    "pydantic>=1.10.7",
+    "langchain>=0.0.154",
+    "ruff>=0.0.263",
+    "fastapi>=0.95.1",
+    "notebook>=6.5.4",
+    "pytest>=7.3.1",
+    "pytest-asyncio>=0.21.1",
+    "redis>=4.6.0",
+    "httpx>=0.24.1",
+    "pytest-watch>=4.2.0",
+    "fakeredis>=2.17.0",
+    "uvicorn[standard]>=0.23.2",
+    "types-redis>=4.6.0.3",
+]
+requires-python = ">=3.10"
+license = {text = "Apache2.0"}
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.pyright]
+strict = ["**/*"]

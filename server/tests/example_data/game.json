@@ -1,0 +1,19 @@
+{
+  "name": "test_game",
+  "description": "for testing",
+  "agents": [
+    {
+      "name": "test_agent",
+      "description": "test agent",
+      "core_facts": "for testing",
+      "instructions": "confirm code works",
+      "example_speech": "...",
+      "actions": [
+        {
+          "name": "mock_action",
+          "description": "do nothing"
+        }
+      ]
+    }
+  ]
+}
