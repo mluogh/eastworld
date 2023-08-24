@@ -28,16 +28,11 @@ This framework has two goals
   </figcaption>
 </figure>
 
-<figure>
-  <p align="center">
+<p align="center">
   <a href="https://www.youtube.com/watch?feature=player_embedded&v=VSqIzjOk5p4" target="_blank">
-    <img src="https://img.youtube.com/vi/VSqIzjOk5p4/0.jpg" alt="Watch the video" width="30%" />
+    <i>See how you can add an agent to your game in ~5 minutes</i>
   </a>
-  </p>
-  <figcaption align="center">
-    <p align="center"><i>See how you can add an agent to your game in ~5 minutes</i></p>
-  </figcaption>
-</figure>
+</p>
 
 # Features
 
