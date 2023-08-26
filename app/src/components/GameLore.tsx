@@ -28,6 +28,7 @@ interface GameLoreProps {
 
 export default function GameLore(props: GameLoreProps) {
   const [sharedLore, setSharedLore] = useState<Lore[]>(props.existingLore);
+  const [localAgents, setLocalAgents] = useState<AgentDef[]>([]);
 
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
@@ -62,6 +63,20 @@ export default function GameLore(props: GameLoreProps) {
     });
   };
 
+  const handleFilterAgents = (uuids: string[]) => {
+    const filteredAgents = props.agents.filter(agent => uuids.includes(agent.uuid!));
+
+    setLocalAgents(filteredAgents);
+
+    setSharedLore(
+      () => 
+        props.existingLore.filter(
+          lore => filteredAgents.map(agent => agent.uuid).every(
+            element => lore.known_by?.includes(element!)
+          ))
+    )
+  };
+
   return (
     <>
       <Center margin={10}>
@@ -82,6 +97,36 @@ export default function GameLore(props: GameLoreProps) {
             />
           </Tooltip>
         </Heading>
+      </Center>
+      <Center margin={10}>
+        <Select
+          placeholder="Known by ..."
+          isMulti={true}
+          size={"md"}
+          colorScheme="purple"
+          chakraStyles={{
+            input: base => ({ ...base, width: "100%", minWidth: "100%" }),
+            container: base => ({
+              ...base,
+              width: "100%",
+              minWidth: "100%",
+            }),
+          }}
+          value={localAgents.map(agent => ({
+            value: agent.uuid!,
+            label: agent.name,
+          }))}
+          options={props.agents.map(agent => ({
+            value: agent.uuid!,
+            label: agent.name,
+          }))}
+          onChange={
+            agents => handleFilterAgents(
+              agents.map(agent => agent.value),
+            )
+          }
+          closeMenuOnSelect={false}
+        ></Select>
       </Center>
       <Grid templateColumns="repeat(2, 1fr)" gap={8} marginBottom={100}>
         <Card
