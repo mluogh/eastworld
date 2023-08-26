@@ -64,17 +64,19 @@ export default function GameLore(props: GameLoreProps) {
   };
 
   const handleFilterAgents = (uuids: string[]) => {
-    const filteredAgents = props.agents.filter(agent => uuids.includes(agent.uuid!));
+    const filteredAgents = props.agents.filter(agent =>
+      uuids.includes(agent.uuid!),
+    );
 
     setLocalAgents(filteredAgents);
 
-    setSharedLore(
-      () => 
-        props.existingLore.filter(
-          lore => filteredAgents.map(agent => agent.uuid).every(
-            element => lore.known_by?.includes(element!)
-          ))
-    )
+    setSharedLore(() =>
+      props.existingLore.filter(lore =>
+        filteredAgents
+          .map(agent => agent.uuid)
+          .every(element => lore.known_by?.includes(element!)),
+      ),
+    );
   };
 
   return (
@@ -120,10 +122,8 @@ export default function GameLore(props: GameLoreProps) {
             value: agent.uuid!,
             label: agent.name,
           }))}
-          onChange={
-            agents => handleFilterAgents(
-              agents.map(agent => agent.value),
-            )
+          onChange={agents =>
+            handleFilterAgents(agents.map(agent => agent.value))
           }
           closeMenuOnSelect={false}
         ></Select>
