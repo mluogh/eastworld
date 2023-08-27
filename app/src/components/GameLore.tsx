@@ -43,7 +43,7 @@ export default function GameLore(props: GameLoreProps) {
       newIndicesSet.add(element.index);
     });
     setLoreIndicesToDisplay(newIndicesSet);
-  }, [sharedLore]);
+  }, [sharedLore, filteredAgents]);
 
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
