@@ -33,10 +33,6 @@ export default function GameLore(props: GameLoreProps) {
     new Set<number>(),
   );
 
-  useEffect(() => {
-    setLoreIndices(sharedLore, filteredAgents);
-  }, [sharedLore, filteredAgents]);
-
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
     return agent?.name ?? "";
@@ -77,6 +73,7 @@ export default function GameLore(props: GameLoreProps) {
 
     setFilteredAgents(newFilteredAgents);
 
+    // Lore is identified right now with its index in the list
     setLoreIndices(sharedLore, newFilteredAgents);
   };
 
@@ -98,6 +95,10 @@ export default function GameLore(props: GameLoreProps) {
 
     setLoreIndicesToDisplay(newIndicesSet);
   };
+
+  useEffect(() => {
+    setLoreIndices(sharedLore, filteredAgents);
+  }, [setLoreIndices, sharedLore, filteredAgents]);
 
   return (
     <>
