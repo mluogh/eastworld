@@ -34,15 +34,7 @@ export default function GameLore(props: GameLoreProps) {
   );
 
   useEffect(() => {
-    const indexedLore = sharedLore.map((value, index) => ({ value, index }));
-    const filteredLore = indexedLore.filter(item =>
-      showSharedLore(item.value, filteredAgents),
-    );
-    const newIndicesSet: Set<number> = new Set();
-    filteredLore.forEach(element => {
-      newIndicesSet.add(element.index);
-    });
-    setLoreIndicesToDisplay(newIndicesSet);
+    setLoreIndices(sharedLore, filteredAgents);
   }, [sharedLore, filteredAgents]);
 
   const agentUuidToName = (uuid: string) => {
@@ -85,16 +77,7 @@ export default function GameLore(props: GameLoreProps) {
 
     setFilteredAgents(newFilteredAgents);
 
-    const indexedLore = sharedLore.map((value, index) => ({ value, index }));
-    const filteredLore = indexedLore.filter(item =>
-      showSharedLore(item.value, newFilteredAgents),
-    );
-    const newIndicesSet: Set<number> = new Set();
-    filteredLore.forEach(element => {
-      newIndicesSet.add(element.index);
-    });
-
-    setLoreIndicesToDisplay(newIndicesSet);
+    setLoreIndices(sharedLore, newFilteredAgents);
   };
 
   const showSharedLore = (lore: Lore, agents: AgentDef[]) => {
@@ -102,6 +85,19 @@ export default function GameLore(props: GameLoreProps) {
       .map(agent => agent.uuid)
       .every(element => lore.known_by?.includes(element!));
   };
+  
+  const setLoreIndices = (lore: Lore[], agentDefs: AgentDef[]) => {
+    const indexedLore = lore.map((value, index) => ({ value, index }));
+    const filteredLore = indexedLore.filter(item =>
+      showSharedLore(item.value, agentDefs),
+    );
+    const newIndicesSet: Set<number> = new Set();
+    filteredLore.forEach(element => {
+      newIndicesSet.add(element.index);
+    });
+
+    setLoreIndicesToDisplay(newIndicesSet);
+  }
 
   return (
     <>
