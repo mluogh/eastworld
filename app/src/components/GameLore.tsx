@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, InfoIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ColoredPreview } from "util/ColoredPreview";
 import DeleteModal from "util/DeleteModal";
 
@@ -29,7 +29,20 @@ interface GameLoreProps {
 export default function GameLore(props: GameLoreProps) {
   const [sharedLore, setSharedLore] = useState<Lore[]>(props.existingLore);
   const [filteredAgents, setFilteredAgents] = useState<AgentDef[]>([]);
-  const loreIndicesToDisplay = new Set<number>();
+  const [loreIndicesToDisplay, setLoreIndicesToDisplay] = useState(new Set<number>());
+
+  useEffect(() => {
+    const indexedLore = sharedLore.map((value, index) => ({ value, index }));
+    const filteredLore = indexedLore.filter(item =>
+      showSharedLore(item.value, filteredAgents),
+    );
+    const newIndicesSet: Set<number> = new Set();
+    filteredLore.forEach(element => {
+      newIndicesSet.add(element.index);
+    });
+    setLoreIndicesToDisplay(newIndicesSet);
+  }, [sharedLore]);
+  
 
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
@@ -75,8 +88,12 @@ export default function GameLore(props: GameLoreProps) {
     const filteredLore = indexedLore.filter(item =>
       showSharedLore(item.value, newFilteredAgents),
     );
-
-    filteredLore.forEach(item => loreIndicesToDisplay.add(item.index));
+    const newIndicesSet: Set<number> = new Set();
+    filteredLore.forEach(element => {
+      newIndicesSet.add(element.index);
+    });
+    
+    setLoreIndicesToDisplay(newIndicesSet)
   };
 
   const showSharedLore = (lore: Lore, agents: AgentDef[]) => {
