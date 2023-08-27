@@ -85,18 +85,18 @@ export default function GameLore(props: GameLoreProps) {
 
   const setLoreIndices = useCallback(
     (lore: Lore[], agentDefs: AgentDef[]) => {
-    const indexedLore = lore.map((value, index) => ({ value, index }));
-    const filteredLore = indexedLore.filter(item =>
-      showSharedLore(item.value, agentDefs),
-    );
-    const newIndicesSet: Set<number> = new Set();
-    filteredLore.forEach(element => {
-      newIndicesSet.add(element.index);
-    });
+      const indexedLore = lore.map((value, index) => ({ value, index }));
+      const filteredLore = indexedLore.filter(item =>
+        showSharedLore(item.value, agentDefs),
+      );
+      const newIndicesSet: Set<number> = new Set();
+      filteredLore.forEach(element => {
+        newIndicesSet.add(element.index);
+      });
 
-    setLoreIndicesToDisplay(newIndicesSet);
+      setLoreIndicesToDisplay(newIndicesSet);
     },
-    [showSharedLore, setLoreIndicesToDisplay]
+    [showSharedLore, setLoreIndicesToDisplay],
   );
 
   useEffect(() => {
