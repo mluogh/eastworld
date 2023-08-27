@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, InfoIcon } from "@chakra-ui/icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ColoredPreview } from "util/ColoredPreview";
 import DeleteModal from "util/DeleteModal";
 
@@ -83,7 +83,8 @@ export default function GameLore(props: GameLoreProps) {
       .every(element => lore.known_by?.includes(element!));
   };
 
-  const setLoreIndices = (lore: Lore[], agentDefs: AgentDef[]) => {
+  const setLoreIndices = useCallback(
+    (lore: Lore[], agentDefs: AgentDef[]) => {
     const indexedLore = lore.map((value, index) => ({ value, index }));
     const filteredLore = indexedLore.filter(item =>
       showSharedLore(item.value, agentDefs),
@@ -94,7 +95,9 @@ export default function GameLore(props: GameLoreProps) {
     });
 
     setLoreIndicesToDisplay(newIndicesSet);
-  };
+    },
+    [showSharedLore, setLoreIndicesToDisplay]
+  );
 
   useEffect(() => {
     setLoreIndices(sharedLore, filteredAgents);
