@@ -29,7 +29,9 @@ interface GameLoreProps {
 export default function GameLore(props: GameLoreProps) {
   const [sharedLore, setSharedLore] = useState<Lore[]>(props.existingLore);
   const [filteredAgents, setFilteredAgents] = useState<AgentDef[]>([]);
-  const [loreIndicesToDisplay, setLoreIndicesToDisplay] = useState(new Set<number>());
+  const [loreIndicesToDisplay, setLoreIndicesToDisplay] = useState(
+    new Set<number>(),
+  );
 
   useEffect(() => {
     const indexedLore = sharedLore.map((value, index) => ({ value, index }));
@@ -42,7 +44,6 @@ export default function GameLore(props: GameLoreProps) {
     });
     setLoreIndicesToDisplay(newIndicesSet);
   }, [sharedLore]);
-  
 
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
@@ -92,8 +93,8 @@ export default function GameLore(props: GameLoreProps) {
     filteredLore.forEach(element => {
       newIndicesSet.add(element.index);
     });
-    
-    setLoreIndicesToDisplay(newIndicesSet)
+
+    setLoreIndicesToDisplay(newIndicesSet);
   };
 
   const showSharedLore = (lore: Lore, agents: AgentDef[]) => {
