@@ -85,7 +85,7 @@ export default function GameLore(props: GameLoreProps) {
       .map(agent => agent.uuid)
       .every(element => lore.known_by?.includes(element!));
   };
-  
+
   const setLoreIndices = (lore: Lore[], agentDefs: AgentDef[]) => {
     const indexedLore = lore.map((value, index) => ({ value, index }));
     const filteredLore = indexedLore.filter(item =>
@@ -97,7 +97,7 @@ export default function GameLore(props: GameLoreProps) {
     });
 
     setLoreIndicesToDisplay(newIndicesSet);
-  }
+  };
 
   return (
     <>
