@@ -77,11 +77,11 @@ export default function GameLore(props: GameLoreProps) {
     setLoreIndices(sharedLore, newFilteredAgents);
   };
 
-  const showSharedLore = (lore: Lore, agents: AgentDef[]) => {
+  const showSharedLore = useCallback((lore: Lore, agents: AgentDef[]) => {
     return agents
       .map(agent => agent.uuid)
       .every(element => lore.known_by?.includes(element!));
-  };
+  }, []);
 
   const setLoreIndices = useCallback(
     (lore: Lore[], agentDefs: AgentDef[]) => {
