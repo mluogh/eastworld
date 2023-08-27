@@ -72,9 +72,6 @@ export default function GameLore(props: GameLoreProps) {
     );
 
     setFilteredAgents(newFilteredAgents);
-
-    // Lore is identified right now with its index in the list
-    setLoreIndices(sharedLore, newFilteredAgents);
   };
 
   const showSharedLore = useCallback((lore: Lore, agents: AgentDef[]) => {
