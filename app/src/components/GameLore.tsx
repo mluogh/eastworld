@@ -80,7 +80,6 @@ export default function GameLore(props: GameLoreProps) {
       .every(element => lore.known_by?.includes(element!));
   }, []);
 
-
   useEffect(() => {
     const indexedLore = sharedLore.map((value, index) => ({ value, index }));
     const filteredLore = indexedLore.filter(item =>
