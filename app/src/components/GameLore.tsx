@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, InfoIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ColoredPreview } from "util/ColoredPreview";
 import DeleteModal from "util/DeleteModal";
 
@@ -28,6 +28,10 @@ interface GameLoreProps {
 
 export default function GameLore(props: GameLoreProps) {
   const [sharedLore, setSharedLore] = useState<Lore[]>(props.existingLore);
+  const [filteredAgents, setFilteredAgents] = useState<AgentDef[]>([]);
+  const [loreIndicesToDisplay, setLoreIndicesToDisplay] = useState(
+    new Set<number>(),
+  );
 
   const agentUuidToName = (uuid: string) => {
     const agent = props.agents.find(a => a.uuid === uuid);
@@ -62,6 +66,33 @@ export default function GameLore(props: GameLoreProps) {
     });
   };
 
+  const handleFilterAgents = (uuids: string[]) => {
+    const newFilteredAgents = props.agents.filter(agent =>
+      uuids.includes(agent.uuid!),
+    );
+
+    setFilteredAgents(newFilteredAgents);
+  };
+
+  const showSharedLore = useCallback((lore: Lore, agents: AgentDef[]) => {
+    return agents
+      .map(agent => agent.uuid)
+      .every(element => lore.known_by?.includes(element!));
+  }, []);
+
+  useEffect(() => {
+    const indexedLore = sharedLore.map((value, index) => ({ value, index }));
+    const filteredLore = indexedLore.filter(item =>
+      showSharedLore(item.value, filteredAgents),
+    );
+    const newIndicesSet: Set<number> = new Set();
+    filteredLore.forEach(element => {
+      newIndicesSet.add(element.index);
+    });
+
+    setLoreIndicesToDisplay(newIndicesSet);
+  }, [showSharedLore, sharedLore, filteredAgents]);
+
   return (
     <>
       <Center margin={10}>
@@ -82,6 +113,34 @@ export default function GameLore(props: GameLoreProps) {
             />
           </Tooltip>
         </Heading>
+      </Center>
+      <Center margin={10}>
+        <Select
+          placeholder="Known by ..."
+          isMulti={true}
+          size={"md"}
+          colorScheme="purple"
+          chakraStyles={{
+            input: base => ({ ...base, width: "100%", minWidth: "100%" }),
+            container: base => ({
+              ...base,
+              width: "100%",
+              minWidth: "100%",
+            }),
+          }}
+          value={filteredAgents.map(agent => ({
+            value: agent.uuid!,
+            label: agent.name,
+          }))}
+          options={props.agents.map(agent => ({
+            value: agent.uuid!,
+            label: agent.name,
+          }))}
+          onChange={agents =>
+            handleFilterAgents(agents.map(agent => agent.value))
+          }
+          closeMenuOnSelect={false}
+        ></Select>
       </Center>
       <Grid templateColumns="repeat(2, 1fr)" gap={8} marginBottom={100}>
         <Card
@@ -106,63 +165,70 @@ export default function GameLore(props: GameLoreProps) {
             </Flex>
           </CardBody>
         </Card>
-        {sharedLore.map((lore, index) => (
-          <Card width={"100%"} key={index}>
-            <CardBody>
-              <HStack marginBottom={5}>
-                <Editable
-                  width={"full"}
-                  height="max-content"
-                  value={lore.memory.description}
-                  onChange={value => handleDescriptionChange(index, value)}
-                  onSubmit={() => props.handleSave(sharedLore)}
-                >
-                  <ColoredPreview minHeight={10} />
-                  <EditableTextarea value={lore.memory.description} />
-                </Editable>
-                <Box marginTop={"-8px"}>
-                  <DeleteModal
-                    text="Are you sure you want to delete this shared lore?"
-                    onDelete={() => handleDelete(index)}
-                  ></DeleteModal>
-                </Box>
-              </HStack>
-              <Select
-                placeholder="Known by ..."
-                isMulti={true}
-                size={"md"}
-                colorScheme="purple"
-                chakraStyles={{
-                  input: base => ({ ...base, width: "100%", minWidth: "100%" }),
-                  container: base => ({
-                    ...base,
-                    width: "100%",
-                    minWidth: "100%",
-                  }),
-                }}
-                value={
-                  lore.known_by
-                    ? lore.known_by.map(uuid => ({
-                        value: uuid,
-                        label: agentUuidToName(uuid),
-                      }))
-                    : []
-                }
-                options={props.agents.map(agent => ({
-                  value: agent.uuid!,
-                  label: agent.name,
-                }))}
-                onChange={agents =>
-                  handleKnownByChange(
-                    index,
-                    agents.map(agent => agent.value),
-                  )
-                }
-                closeMenuOnSelect={false}
-              ></Select>
-            </CardBody>
-          </Card>
-        ))}
+        {sharedLore.map(
+          (lore, index) =>
+            loreIndicesToDisplay.has(index) && (
+              <Card width={"100%"} key={index}>
+                <CardBody>
+                  <HStack marginBottom={5}>
+                    <Editable
+                      width={"full"}
+                      height="max-content"
+                      value={lore.memory.description}
+                      onChange={value => handleDescriptionChange(index, value)}
+                      onSubmit={() => props.handleSave(sharedLore)}
+                    >
+                      <ColoredPreview minHeight={10} />
+                      <EditableTextarea value={lore.memory.description} />
+                    </Editable>
+                    <Box marginTop={"-8px"}>
+                      <DeleteModal
+                        text="Are you sure you want to delete this shared lore?"
+                        onDelete={() => handleDelete(index)}
+                      ></DeleteModal>
+                    </Box>
+                  </HStack>
+                  <Select
+                    placeholder="Known by ..."
+                    isMulti={true}
+                    size={"md"}
+                    colorScheme="purple"
+                    chakraStyles={{
+                      input: base => ({
+                        ...base,
+                        width: "100%",
+                        minWidth: "100%",
+                      }),
+                      container: base => ({
+                        ...base,
+                        width: "100%",
+                        minWidth: "100%",
+                      }),
+                    }}
+                    value={
+                      lore.known_by
+                        ? lore.known_by.map(uuid => ({
+                            value: uuid,
+                            label: agentUuidToName(uuid),
+                          }))
+                        : []
+                    }
+                    options={props.agents.map(agent => ({
+                      value: agent.uuid!,
+                      label: agent.name,
+                    }))}
+                    onChange={agents =>
+                      handleKnownByChange(
+                        index,
+                        agents.map(agent => agent.value),
+                      )
+                    }
+                    closeMenuOnSelect={false}
+                  ></Select>
+                </CardBody>
+              </Card>
+            ),
+        )}
       </Grid>
     </>
   );
