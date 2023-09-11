@@ -1,13 +1,13 @@
 {
   "uuid": "5dcd12ef-7489-4d5e-9ce1-202451fd1c5f",
   "name": "Detective Game",
-  "description": "On a stormy night in 1860's San Francisco, the opulent Harrington mansion hosted a gathering of the city's elite. Amidst laughter and conversation, a sudden thunderclap and lightning flash briefly interrupted the festivities. It was during this moment of distraction that Elias Harrington, the wealthy railroad baron, raised his glass for a toast.\n\nAs the storm outside mirrored the growing unrest within the mansion, an air of unease settled over the gathering.\n\nSuddenly, amidst the turmoil, Elias Harrington collapsed. The shock of his death added an eerie layer to the night's already tumultuous events. As the storm's intensity escalated, Inspector Samuel O'Connor arrived to investigate the murder. ",
+  "description": "It is the year 1865 in San Francisco California. On the night of August 15th, the wealthy industrialist Elias Harrington hosts a party at his luxurious mansion in the nob hill neighborhood. Suddenly at around 10 PM Elias Harrington collapses. Doctors arrive at the scene and are unable to save him. They believe he has been poisoned. It is now the next day, and Detective Samuel O'Connor has been assigned to investigate.",
   "agents": [
     {
       "uuid": "2fa1bb81-30cd-4844-924b-42d40768c3ee",
       "is_playable": true,
       "name": "Detective Samuel O'Connor",
-      "description": "Occupation: Inspector of the San Francisco Police Department\nAge: Late 30s\nPersonality: Observant, determined, introspective\nInspector Samuel O'Connor is a seasoned detective with the San Francisco Police Department in the 1860s. With a keen eye for detail and a tenacious spirit, O'Connor has earned a reputation as a skilled investigator. He is known for his methodical approach to solving cases, always digging deeper to uncover hidden truths.\n\nO'Connor's years on the force have instilled in him a sense of duty to uphold justice and seek the truth, even in the face of complex challenges. Despite his tough exterior, he carries a thoughtful and introspective nature, often pondering the moral and societal implications of the cases he investigates.\n\nThe murder of Elias Harrington, a prominent figure with divisive views, presents O'Connor with a high-profile case that tests his abilities and principles. As he navigates the intricate layers of the crime and the tensions of the city, O'Connor's determination to uncover the truth shines through, highlighting his dedication to bringing justice to a world often clouded by secrets and deception.",
+      "description": "Tall and Intimidating. Known for getting to the bottom of any mystery. Makes criminals nervous.",
       "core_facts": "",
       "instructions": "",
       "example_speech": "",
@@ -99,6 +99,34 @@
     }
   ],
   "shared_lore": [
+    {
+      "known_by": [
+        "1a438867-1381-49bd-8912-1a5ab73ce02f",
+        "38ea208d-501b-4bce-a8c3-62dfdc11a5c3",
+        "44842838-a0b5-4a34-be56-c472401b361d",
+        "36fae7b9-f06e-45cc-a32d-6ba82646e26c"
+      ],
+      "memory": {
+        "importance": 10,
+        "description": "Elias Harrington threatened to reveal Victoria's secret if she didnt stop advocating for chinese labor rights the night of the 14th.",
+        "embedding": null,
+        "timestamp": null
+      }
+    },
+    {
+      "known_by": [
+        "44842838-a0b5-4a34-be56-c472401b361d",
+        "8c678163-c84d-4548-9ae7-cb66c4f924c6",
+        "169cdac0-b0f8-41ac-ad7e-aba02772b322",
+        "be167685-4938-4a53-950c-0da065732013"
+      ],
+      "memory": {
+        "importance": 10,
+        "description": "Gruel flower usually takes an hour to take effect",
+        "embedding": null,
+        "timestamp": null
+      }
+    },
     {
       "known_by": [
         "1a438867-1381-49bd-8912-1a5ab73ce02f",
