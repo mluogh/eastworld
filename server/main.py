@@ -27,6 +27,7 @@ GAMES_DEFS_SET = "GAME_DEFS"
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
 ]
 
 
