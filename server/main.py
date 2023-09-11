@@ -25,11 +25,6 @@ from server.util.json_loader import load_games_from_path
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
-origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-]
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -112,7 +107,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
