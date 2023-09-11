@@ -17,5 +17,8 @@
     "jsx": "react-jsx",
     "baseUrl": "src"
   },
-  "include": ["src"]
+  "include": ["src"],
+  // setupProxy only works with js, need to exclude
+  // See https://stackoverflow.com/questions/60387724/setupproxy-file-not-being-read-in-create-react-app-typescript
+  "exclude": ["src/setupProxy.js"]
 }
