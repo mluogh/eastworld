@@ -12,6 +12,7 @@ from game.session import Session
 from game.ti_retriever import TIRetriever
 from llm.base import LLMBase
 from schema import (
+    AgentDef,
     Conversation,
     GameDef,
     Knowledge,
@@ -51,6 +52,30 @@ def get_gen_agent(agent: str, session: Session):
             raise HTTPException(status_code=404, detail="Agent not found")
 
     return gen_agent
+
+
+def get_agent_def(agent: str, session: Session) -> AgentDef:
+    agent_def = next(
+        (
+            gen_agent
+            for gen_agent in session.game_def.agents
+            if str(gen_agent.uuid) == agent
+        ),
+        None,
+    )
+    if not agent_def:
+        agent_def = next(
+            (
+                gen_agent
+                for gen_agent in session.game_def.agents
+                if gen_agent.name == agent
+            ),
+            None,
+        )
+        if not agent_def:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+    return agent_def
 
 
 @router.post("/create", operation_id="create_session", response_model=str)
@@ -142,8 +167,9 @@ def get_sessions_list(game_uuid: str, sessions: SessionsType = Depends(get_sessi
 async def start_conversation(
     session_uuid: str,
     agent: str,
-    conversation: Conversation,
-    history: List[Message],
+    history: Optional[List[Message]],
+    correspondent: Optional[str],
+    conversation: Optional[Conversation],
     sessions: SessionsType = Depends(get_sessions),
 ):
     """Starts a chat with the given agent. Clears previous conversation
@@ -153,6 +179,7 @@ async def start_conversation(
 
     - **session_uuid** (str): the uuid of the session
     - **agent** (str): either the uuid or the name of the agent.
+    - **correspondent** (str): the character with whom the agent is speaking to.
     - **conversation** (Conversation): conversation context. See definition.
     - **history** List[Message]: pre-populate the conversation so you start
     as though you were mid-conversation
@@ -162,8 +189,13 @@ async def start_conversation(
     """
     session = sessions[UUID4(session_uuid)]
     gen_agent = get_gen_agent(agent, session)
+    if not conversation:
+        conversation = Conversation()
 
-    gen_agent.startConversation(conversation, history)
+    if correspondent:
+        conversation = Conversation(correspondent=get_agent_def(correspondent, session))
+
+    return gen_agent.startConversation(conversation, history or [])
 
 
 @router.post(
