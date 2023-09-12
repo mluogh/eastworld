@@ -167,9 +167,9 @@ def get_sessions_list(game_uuid: str, sessions: SessionsType = Depends(get_sessi
 async def start_conversation(
     session_uuid: str,
     agent: str,
-    history: Optional[List[Message]],
-    correspondent: Optional[str],
-    conversation: Optional[Conversation],
+    history: Optional[List[Message]] = None,
+    correspondent: Optional[str] = None,
+    conversation: Optional[Conversation] = None,
     sessions: SessionsType = Depends(get_sessions),
 ):
     """Starts a chat with the given agent. Clears previous conversation
