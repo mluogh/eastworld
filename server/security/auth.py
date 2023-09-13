@@ -16,7 +16,9 @@ def verify_google_id_token(
     try:
         client_id = parser.get("oauth2", "CLIENT_ID", fallback="dummy_client_id")
         # Validate the token and return user info
-        id_token.verify_oauth2_token(token, requests.Request(), client_id)  # type: ignore
+        id_token.verify_oauth2_token(  # type: ignore
+            token, requests.Request(), client_id
+        )
 
     except ValueError:
         # Invalid token
