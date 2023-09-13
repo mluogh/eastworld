@@ -12,7 +12,8 @@ import Game from "components/Game";
 import Agent from "components/Agent";
 
 function App() {
-  OpenAPI.BASE = "/api";
+  OpenAPI.BASE = `${window.location.protocol}//${window.location.hostname}:8000`;
+  console.log(OpenAPI.BASE);
 
   return (
     <ChakraProvider theme={theme}>

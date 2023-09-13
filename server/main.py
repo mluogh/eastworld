@@ -9,6 +9,8 @@ from aiohttp import ClientSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis.asyncio import Redis
+from requests_oauthlib import OAuth2Session
+
 
 from llm.openai import OpenAIInterface
 from schema import GameDef
@@ -19,12 +21,14 @@ from server.router import (
     llm_handlers,
     session_handlers,
     util_handlers,
+    authorization_handlers,
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
+# TODO: Add this to a config file
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,6 +46,16 @@ async def lifespan(app: FastAPI):
     key = parser.get("llm", "openai_api_key", fallback="Dummy key")
     chat_model = parser.get("llm", "chat_model")
     embedding_size = parser.getint("llm", "embedding_size")
+
+    client_id = parser.get("oauth2", "CLIENT_ID", fallback="dummy_client_id")
+    redirect_uri = parser.get("oauth2", "REDIRECT_URI", fallback="http://localhost:8000/auth/callback")
+    scope = parser.get("oauth2", "SCOPES", fallback="openid,profile,email").split(",")
+
+    auth_provider_session = OAuth2Session(
+        client_id=client_id,
+        redirect_uri=redirect_uri,
+        scope=scope,
+    )
 
     openai_http_client = ClientSession()
     llm = OpenAIInterface(
@@ -78,6 +92,7 @@ async def lifespan(app: FastAPI):
         "sessions": sessions,
         "parser": parser,
         "llm": llm,
+        "auth_provider_session": auth_provider_session,
     }
 
     if dev_mode:
@@ -118,3 +133,4 @@ app.include_router(llm_handlers.router)
 app.include_router(game_def_handlers.router)
 app.include_router(agent_def_handlers.router)
 app.include_router(session_handlers.router)
+app.include_router(authorization_handlers.router)

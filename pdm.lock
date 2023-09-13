@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:6645b797fb142b6ed5ad231d511d4749372d873cc038d975e42c4fbb03b17bb9"
+content_hash = "sha256:75c713134d7696d572b717b483e7e6d9669f00dedbab80ae14ce4411730b0cb8"
 
 [[package]]
 name = "aiohttp"
@@ -216,6 +216,16 @@ dependencies = [
 files = [
     {file = "bleach-6.0.0-py3-none-any.whl", hash = "sha256:33c16e3353dbd13028ab4799a0f89a83f113405c766e9c122df8a06f5b85b3f4"},
     {file = "bleach-6.0.0.tar.gz", hash = "sha256:1a1a85c1595e07d8db14c5f09f09e6433502c51c595970edc090551f0db99414"},
+]
+
+[[package]]
+name = "cachetools"
+version = "5.3.1"
+requires_python = ">=3.7"
+summary = "Extensible memoizing collections and decorators"
+files = [
+    {file = "cachetools-5.3.1-py3-none-any.whl", hash = "sha256:95ef631eeaea14ba2e36f06437f36463aac3a096799e876ee55e5cdccb102590"},
+    {file = "cachetools-5.3.1.tar.gz", hash = "sha256:dce83f2d9b4e1f732a8cd44af8e8fab2dbe46201467fc98b3ef8f269092bf62b"},
 ]
 
 [[package]]
@@ -533,6 +543,37 @@ files = [
 ]
 
 [[package]]
+name = "google-auth"
+version = "2.23.0"
+requires_python = ">=3.7"
+summary = "Google Authentication Library"
+dependencies = [
+    "cachetools<6.0,>=2.0.0",
+    "pyasn1-modules>=0.2.1",
+    "rsa<5,>=3.1.4",
+    "urllib3<2.0",
+]
+files = [
+    {file = "google-auth-2.23.0.tar.gz", hash = "sha256:753a26312e6f1eaeec20bc6f2644a10926697da93446e1f8e24d6d32d45a922a"},
+    {file = "google_auth-2.23.0-py2.py3-none-any.whl", hash = "sha256:2cec41407bd1e207f5b802638e32bb837df968bb5c05f413d0fa526fac4cf7a7"},
+]
+
+[[package]]
+name = "google-auth-stubs"
+version = "0.2.0"
+requires_python = ">=3.6.2,<4.0.0"
+summary = "Type stubs for google-auth"
+dependencies = [
+    "google-auth<3.0.0,>=2.7.0",
+    "grpc-stubs<2.0.0,>=1.24.7",
+    "types-requests<3.0.0,>=2.25.9",
+]
+files = [
+    {file = "google-auth-stubs-0.2.0.tar.gz", hash = "sha256:96085d3b7f704f44231a19683a57f7e77e964168ad2251302beae9136405d0d7"},
+    {file = "google_auth_stubs-0.2.0-py3-none-any.whl", hash = "sha256:98ed66dfd75687569c257a0cbb09c0f614eed22106955edcb2f05c6617899c6a"},
+]
+
+[[package]]
 name = "greenlet"
 version = "2.0.2"
 requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
@@ -556,6 +597,46 @@ files = [
 ]
 
 [[package]]
+name = "grpc-stubs"
+version = "1.53.0.2"
+requires_python = ">=3.6"
+summary = "Mypy stubs for gRPC"
+dependencies = [
+    "grpcio",
+]
+files = [
+    {file = "grpc-stubs-1.53.0.2.tar.gz", hash = "sha256:99cb4fc64d257cd5e402c61ba92fc5ce5f9daf08cc8ee03c112dd2329b4fe3ce"},
+    {file = "grpc_stubs-1.53.0.2-py3-none-any.whl", hash = "sha256:f7ed97a001f2b423c7e7249946ea2bf4a41843a081d693e6cc329df587d61050"},
+]
+
+[[package]]
+name = "grpcio"
+version = "1.58.0"
+requires_python = ">=3.7"
+summary = "HTTP/2-based RPC framework"
+files = [
+    {file = "grpcio-1.58.0-cp310-cp310-linux_armv7l.whl", hash = "sha256:3e6bebf1dfdbeb22afd95650e4f019219fef3ab86d3fca8ebade52e4bc39389a"},
+    {file = "grpcio-1.58.0-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:cde11577d5b6fd73a00e6bfa3cf5f428f3f33c2d2878982369b5372bbc4acc60"},
+    {file = "grpcio-1.58.0-cp310-cp310-manylinux_2_17_aarch64.whl", hash = "sha256:a2d67ff99e70e86b2be46c1017ae40b4840d09467d5455b2708de6d4c127e143"},
+    {file = "grpcio-1.58.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1ed979b273a81de36fc9c6716d9fb09dd3443efa18dcc8652501df11da9583e9"},
+    {file = "grpcio-1.58.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:458899d2ebd55d5ca2350fd3826dfd8fcb11fe0f79828ae75e2b1e6051d50a29"},
+    {file = "grpcio-1.58.0-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:bc7ffef430b80345729ff0a6825e9d96ac87efe39216e87ac58c6c4ef400de93"},
+    {file = "grpcio-1.58.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:5b23d75e5173faa3d1296a7bedffb25afd2fddb607ef292dfc651490c7b53c3d"},
+    {file = "grpcio-1.58.0-cp310-cp310-win32.whl", hash = "sha256:fad9295fe02455d4f158ad72c90ef8b4bcaadfdb5efb5795f7ab0786ad67dd58"},
+    {file = "grpcio-1.58.0-cp310-cp310-win_amd64.whl", hash = "sha256:bc325fed4d074367bebd465a20763586e5e1ed5b943e9d8bc7c162b1f44fd602"},
+    {file = "grpcio-1.58.0-cp311-cp311-linux_armv7l.whl", hash = "sha256:652978551af02373a5a313e07bfef368f406b5929cf2d50fa7e4027f913dbdb4"},
+    {file = "grpcio-1.58.0-cp311-cp311-macosx_10_10_universal2.whl", hash = "sha256:9f13a171281ebb4d7b1ba9f06574bce2455dcd3f2f6d1fbe0fd0d84615c74045"},
+    {file = "grpcio-1.58.0-cp311-cp311-manylinux_2_17_aarch64.whl", hash = "sha256:8774219e21b05f750eef8adc416e9431cf31b98f6ce9def288e4cea1548cbd22"},
+    {file = "grpcio-1.58.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:09206106848462763f7f273ca93d2d2d4d26cab475089e0de830bb76be04e9e8"},
+    {file = "grpcio-1.58.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:62831d5e251dd7561d9d9e83a0b8655084b2a1f8ea91e4bd6b3cedfefd32c9d2"},
+    {file = "grpcio-1.58.0-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:212f38c6a156862098f6bdc9a79bf850760a751d259d8f8f249fc6d645105855"},
+    {file = "grpcio-1.58.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:4b12754af201bb993e6e2efd7812085ddaaef21d0a6f0ff128b97de1ef55aa4a"},
+    {file = "grpcio-1.58.0-cp311-cp311-win32.whl", hash = "sha256:3886b4d56bd4afeac518dbc05933926198aa967a7d1d237a318e6fbc47141577"},
+    {file = "grpcio-1.58.0-cp311-cp311-win_amd64.whl", hash = "sha256:002f228d197fea12797a14e152447044e14fb4fdb2eb5d6cfa496f29ddbf79ef"},
+    {file = "grpcio-1.58.0.tar.gz", hash = "sha256:532410c51ccd851b706d1fbc00a87be0f5312bd6f8e5dbf89d4e99c7f79d7499"},
+]
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 requires_python = ">=3.7"
@@ -563,22 +644,6 @@ summary = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
-]
-
-[[package]]
-name = "httpcore"
-version = "0.17.3"
-requires_python = ">=3.7"
-summary = "A minimal low-level HTTP client."
-dependencies = [
-    "anyio<5.0,>=3.0",
-    "certifi",
-    "h11<0.15,>=0.13",
-    "sniffio==1.*",
-]
-files = [
-    {file = "httpcore-0.17.3-py3-none-any.whl", hash = "sha256:c2789b767ddddfa2a5782e3199b2b7f6894540b17b16ec26b2c4d8e103510b87"},
-    {file = "httpcore-0.17.3.tar.gz", hash = "sha256:a6f30213335e34c1ade7be6ec7c47f19f50c56db36abef1a9dfa3815b1cb3888"},
 ]
 
 [[package]]
@@ -602,22 +667,6 @@ files = [
     {file = "httptools-0.6.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:6e22896b42b95b3237eccc42278cd72c0df6f23247d886b7ded3163452481e38"},
     {file = "httptools-0.6.0-cp311-cp311-win_amd64.whl", hash = "sha256:38f3cafedd6aa20ae05f81f2e616ea6f92116c8a0f8dcb79dc798df3356836e2"},
     {file = "httptools-0.6.0.tar.gz", hash = "sha256:9fc6e409ad38cbd68b177cd5158fc4042c796b82ca88d99ec78f07bed6c6b796"},
-]
-
-[[package]]
-name = "httpx"
-version = "0.24.1"
-requires_python = ">=3.7"
-summary = "The next generation HTTP client."
-dependencies = [
-    "certifi",
-    "httpcore<0.18.0,>=0.15.0",
-    "idna",
-    "sniffio",
-]
-files = [
-    {file = "httpx-0.24.1-py3-none-any.whl", hash = "sha256:06781eb9ac53cde990577af654bd990a4949de37a28bdb4a230d434f3a30b9bd"},
-    {file = "httpx-0.24.1.tar.gz", hash = "sha256:5853a43053df830c20f8110c5e69fe44d035d850b2dfe795e196f00fdb774bdd"},
 ]
 
 [[package]]
@@ -1224,6 +1273,16 @@ files = [
 ]
 
 [[package]]
+name = "oauthlib"
+version = "3.2.2"
+requires_python = ">=3.6"
+summary = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
+files = [
+    {file = "oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca"},
+    {file = "oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918"},
+]
+
+[[package]]
 name = "openai"
 version = "0.27.8"
 requires_python = ">=3.7.1"
@@ -1376,6 +1435,29 @@ summary = "Safely evaluate AST nodes without side effects"
 files = [
     {file = "pure_eval-0.2.2-py3-none-any.whl", hash = "sha256:01eaab343580944bc56080ebe0a674b39ec44a945e6d09ba7db3cb8cec289350"},
     {file = "pure_eval-0.2.2.tar.gz", hash = "sha256:2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3"},
+]
+
+[[package]]
+name = "pyasn1"
+version = "0.5.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+summary = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
+files = [
+    {file = "pyasn1-0.5.0-py2.py3-none-any.whl", hash = "sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57"},
+    {file = "pyasn1-0.5.0.tar.gz", hash = "sha256:97b7290ca68e62a832558ec3976f15cbf911bf5d7c7039d8b861c2a0ece69fde"},
+]
+
+[[package]]
+name = "pyasn1-modules"
+version = "0.3.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+summary = "A collection of ASN.1-based protocols modules"
+dependencies = [
+    "pyasn1<0.6.0,>=0.4.6",
+]
+files = [
+    {file = "pyasn1_modules-0.3.0-py2.py3-none-any.whl", hash = "sha256:d3ccd6ed470d9ffbc716be08bd90efbd44d0734bc9303818f7336070984a162d"},
+    {file = "pyasn1_modules-0.3.0.tar.gz", hash = "sha256:5bd01446b736eb9d31512a30d46c1ac3395d676c6f3cafa4c03eb54b9925631c"},
 ]
 
 [[package]]
@@ -1652,6 +1734,20 @@ files = [
 ]
 
 [[package]]
+name = "requests-oauthlib"
+version = "1.3.1"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+summary = "OAuthlib authentication support for Requests."
+dependencies = [
+    "oauthlib>=3.0.0",
+    "requests>=2.0.0",
+]
+files = [
+    {file = "requests-oauthlib-1.3.1.tar.gz", hash = "sha256:75beac4a47881eeb94d5ea5d6ad31ef88856affe2332b9aafb52c6452ccf0d7a"},
+    {file = "requests_oauthlib-1.3.1-py2.py3-none-any.whl", hash = "sha256:2577c501a2fb8d05a304c09d090d6e47c306fef15809d102b327cf8364bddab5"},
+]
+
+[[package]]
 name = "rfc3339-validator"
 version = "0.1.4"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
@@ -1672,6 +1768,19 @@ summary = "Pure python rfc3986 validator"
 files = [
     {file = "rfc3986_validator-0.1.1-py2.py3-none-any.whl", hash = "sha256:2f235c432ef459970b4306369336b9d5dbdda31b510ca1e327636e01f528bfa9"},
     {file = "rfc3986_validator-0.1.1.tar.gz", hash = "sha256:3d44bde7921b3b9ec3ae4e3adca370438eccebc676456449b145d533b240d055"},
+]
+
+[[package]]
+name = "rsa"
+version = "4.9"
+requires_python = ">=3.6,<4"
+summary = "Pure-Python RSA implementation"
+dependencies = [
+    "pyasn1>=0.1.3",
+]
+files = [
+    {file = "rsa-4.9-py3-none-any.whl", hash = "sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7"},
+    {file = "rsa-4.9.tar.gz", hash = "sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21"},
 ]
 
 [[package]]
@@ -1896,6 +2005,15 @@ files = [
 ]
 
 [[package]]
+name = "types-oauthlib"
+version = "3.2.0.9"
+summary = "Typing stubs for oauthlib"
+files = [
+    {file = "types-oauthlib-3.2.0.9.tar.gz", hash = "sha256:eeabb7f596a2a322c6a2b6e8dd96fa514f54ed891f989614dc82e7ed3f8c2cf7"},
+    {file = "types_oauthlib-3.2.0.9-py3-none-any.whl", hash = "sha256:6be46242d230d09898f7b664d110364c71a36e3751b9b237a1c7d22ebdb7e40c"},
+]
+
+[[package]]
 name = "types-pyopenssl"
 version = "23.2.0.2"
 summary = "Typing stubs for pyOpenSSL"
@@ -1918,6 +2036,40 @@ dependencies = [
 files = [
     {file = "types-redis-4.6.0.3.tar.gz", hash = "sha256:efdef37dc0c04bf5786195651fd694f8bfdd693eac09ec4af46d90f72652558f"},
     {file = "types_redis-4.6.0.3-py3-none-any.whl", hash = "sha256:67c44c14369c33c2a300da2a50b5607c0fc888f7b85eeb7c73e15c78a0f05edd"},
+]
+
+[[package]]
+name = "types-requests"
+version = "2.31.0.2"
+summary = "Typing stubs for requests"
+dependencies = [
+    "types-urllib3",
+]
+files = [
+    {file = "types-requests-2.31.0.2.tar.gz", hash = "sha256:6aa3f7faf0ea52d728bb18c0a0d1522d9bfd8c72d26ff6f61bfc3d06a411cf40"},
+    {file = "types_requests-2.31.0.2-py3-none-any.whl", hash = "sha256:56d181c85b5925cbc59f4489a57e72a8b2166f18273fd8ba7b6fe0c0b986f12a"},
+]
+
+[[package]]
+name = "types-requests-oauthlib"
+version = "1.3.0.0"
+summary = "Typing stubs for requests-oauthlib"
+dependencies = [
+    "types-oauthlib",
+    "types-requests",
+]
+files = [
+    {file = "types-requests-oauthlib-1.3.0.0.tar.gz", hash = "sha256:66f3138dac647dd33012c31477da1c98229d858cf9c2ef932ad2807656a32895"},
+    {file = "types_requests_oauthlib-1.3.0.0-py3-none-any.whl", hash = "sha256:e858d9189eed76eb236ec7fdee64621aa87f8d23d2d52727350fd93a85da8662"},
+]
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.25.14"
+summary = "Typing stubs for urllib3"
+files = [
+    {file = "types-urllib3-1.26.25.14.tar.gz", hash = "sha256:229b7f577c951b8c1b92c1bc2b2fdb0b49847bd2af6d1cc2a2e3dd340f3bda8f"},
+    {file = "types_urllib3-1.26.25.14-py3-none-any.whl", hash = "sha256:9683bbb7fb72e32bfe9d2be6e04875fbe1b3eeec3cbb4ea231435aa7fd6b4f0e"},
 ]
 
 [[package]]

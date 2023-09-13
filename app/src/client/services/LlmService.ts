@@ -29,25 +29,4 @@ export class LlmService {
         });
     }
 
-    /**
-     * Rate
-     * @param question
-     * @returns number Successful Response
-     * @throws ApiError
-     */
-    public static rate(
-        question: string,
-    ): CancelablePromise<number> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/llm/rate',
-            query: {
-                'question': question,
-            },
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
 }

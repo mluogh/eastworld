@@ -9,7 +9,6 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Action } from './models/Action';
 export type { ActionCompletion } from './models/ActionCompletion';
-export type { ActionCompletionWithDebug } from './models/ActionCompletionWithDebug';
 export type { AgentDef } from './models/AgentDef';
 export type { Body_start_chat } from './models/Body_start_chat';
 export type { Conversation } from './models/Conversation';

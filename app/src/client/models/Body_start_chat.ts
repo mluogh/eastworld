@@ -7,7 +7,7 @@ import type { Conversation } from './Conversation';
 import type { Message } from './Message';
 
 export type Body_start_chat = {
-    history?: Array<Message>;
-    conversation?: Conversation;
+    conversation: Conversation;
+    history: Array<Message>;
 };
 
