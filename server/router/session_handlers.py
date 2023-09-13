@@ -173,9 +173,9 @@ def get_sessions_list(
 async def start_conversation(
     session_uuid: str,
     agent: str,
-    history: Optional[List[Message]],
-    correspondent: Optional[str],
-    conversation: Optional[Conversation],
+    history: Optional[List[Message]] = None,
+    correspondent: Optional[str] = None,
+    conversation: Optional[Conversation] = None,
     sessions: SessionsType = Depends(get_sessions),
     authorized: str = Depends(bearer_scheme),
 ):
