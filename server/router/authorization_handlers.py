@@ -14,8 +14,8 @@ router = APIRouter(
 )
 
 
-@router.get("/authorize")
-async def authorize(
+@router.get("/google_authorize")
+async def google_authorize(
     request: Request,
     google_sso: GoogleSSO = Depends(get_google_sso),
 ) -> RedirectResponse:
