@@ -5,6 +5,7 @@ from pydantic import UUID4
 
 from game.memory import GenAgentMemory
 from game.prompt_helpers import (
+    clean_response,
     generate_functions_from_actions,
     get_chat_messages,
     get_guardrail_query,
@@ -79,7 +80,7 @@ class GenAgent:
         completion = await self._llm_interface.completion(messages, functions)
 
         if isinstance(completion, Message):
-            self._conversation_history.append(completion)
+            self._conversation_history.append(clean_response(self.name, completion))
 
         return completion, messages
 
@@ -97,7 +98,7 @@ class GenAgent:
 
         completion = await self._llm_interface.chat_completion(messages)
 
-        self._conversation_history.append(completion)
+        self._conversation_history.append(clean_response(self.name, completion))
         return completion, messages
 
     async def act(

@@ -21,7 +21,7 @@ Description of {knowledge.agent_def.name}:
 {knowledge.agent_def.example_speech}"""
 
     if facts:
-        fragment += "\nYou have the following memories: {}".format("\n".join(facts))
+        fragment += "\nYou have the following memories: \n{}".format("\n".join(facts))
 
     if conversation.correspondent:
         fragment += """\nAs {knowledge.agent_def.name}, you are currently speaking to \
@@ -42,12 +42,20 @@ def get_system_prompt(
 ) -> Message:
     system_prompt = get_knowledge_fragment(knowledge, conversation, facts)
 
-    system_prompt += """\nYou MUST obey the following instructions:
+    instructions: List[str] = []
+    instructions.append(
+        """\nYou MUST obey the following instructions:
 Keep responses concise.
 Do not offer information that is irrelevant to the current conversation.
-NEVER mention you are an AI language model. You MUST stay in character."""
-    system_prompt += knowledge.agent_def.instructions or ""
-    system_prompt += conversation.instructions or ""
+"""
+    )
+    instructions.append(knowledge.agent_def.instructions or "")
+    instructions.append(conversation.instructions or "")
+    instructions.append(
+        """NEVER mention you are an AI language model. You MUST stay in character and \
+respond ONLY as {knowledge.agent_def.name}."""
+    )
+    system_prompt += "\n".join(instructions)
 
     return Message(
         role="system",
@@ -63,7 +71,43 @@ def get_chat_messages(
     facts: List[str],
     history: List[Message],
 ) -> List[Message]:
-    return [get_system_prompt(knowledge, conversation, facts)] + history
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [Message(role="assistant", content=knowledge.agent_def.name + ": ")]
+    )
+
+
+_CHARACTER_PREPEND = "{character} says: {message}"
+
+
+def _format_history(
+    knowledge: Knowledge, conversation: Conversation, history: List[Message]
+) -> List[Message]:
+    def format_message(message: Message) -> Message:
+        if message.role == "user":
+            character = (
+                conversation.correspondent.name
+                if conversation.correspondent
+                else "player"
+            )
+        else:
+            character = knowledge.agent_def.name
+
+        new_message = message.copy()
+        new_message.content = _CHARACTER_PREPEND.format(
+            character=character, message=message.content
+        )
+        return new_message
+
+    return [format_message(message) for message in history]
+
+
+def clean_response(agent_name: str, message: Message) -> Message:
+    prepend = _CHARACTER_PREPEND.format(character=agent_name, message="").strip()
+    if message.content.startswith(prepend):
+        message.content = message.content[len(prepend) :]
+    return message
 
 
 def get_query_messages(
