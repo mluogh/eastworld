@@ -9,9 +9,6 @@ from aiohttp import ClientSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis.asyncio import Redis
-from requests_oauthlib import OAuth2Session
-from fastapi_sso.sso.google import GoogleSSO  # type: ignore
-
 
 from llm.openai import OpenAIInterface
 from schema import GameDef
@@ -26,6 +23,7 @@ from server.router import (
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
+from server.util.sso import generate_google_sso
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
@@ -49,23 +47,7 @@ async def lifespan(app: FastAPI):
     chat_model = parser.get("llm", "chat_model")
     embedding_size = parser.getint("llm", "embedding_size")
 
-    client_id = parser.get("oauth2", "CLIENT_ID", fallback="dummy_client_id")
-    redirect_uri = parser.get(
-        "oauth2", "REDIRECT_URI", fallback="http://localhost:8000/auth/callback"
-    )
-    scope = parser.get("oauth2", "SCOPES", fallback="openid,profile,email").split(",")
-    client_secret = parser.get(
-        "oauth2",
-        "CLIENT_SECRET",
-        fallback="fake_secret",
-    )
-
-    google_sso = GoogleSSO(
-        client_id=client_id,
-        scope=scope,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri,
-    )
+    google_sso = generate_google_sso(parser=parser)
 
     openai_http_client = ClientSession()
     llm = OpenAIInterface(
