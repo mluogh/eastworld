@@ -23,7 +23,7 @@ from server.router import (
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
-from server.util.sso import generate_google_sso
+from server.util.sso import generate_google_sso, generate_github_sso
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
@@ -48,6 +48,7 @@ async def lifespan(app: FastAPI):
     embedding_size = parser.getint("llm", "embedding_size")
 
     google_sso = generate_google_sso(parser=parser)
+    github_sso = generate_github_sso(parser=parser)
 
     openai_http_client = ClientSession()
     llm = OpenAIInterface(
@@ -85,6 +86,7 @@ async def lifespan(app: FastAPI):
         "parser": parser,
         "llm": llm,
         "google_sso": google_sso,
+        "github_sso": github_sso
     }
 
     if dev_mode:
