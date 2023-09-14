@@ -19,11 +19,15 @@ from server.router import (
     llm_handlers,
     session_handlers,
     util_handlers,
+    authorization_handlers,
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
+from server.util.sso import generate_google_sso
 
 GAMES_DEFS_SET = "GAME_DEFS"
+
+# TODO: Add this to a config file
 
 
 @asynccontextmanager
@@ -43,6 +47,8 @@ async def lifespan(app: FastAPI):
     chat_model = parser.get("llm", "chat_model")
     embedding_size = parser.getint("llm", "embedding_size")
 
+    google_sso = generate_google_sso(parser=parser)
+
     openai_http_client = ClientSession()
     llm = OpenAIInterface(
         api_key=key,
@@ -57,7 +63,7 @@ async def lifespan(app: FastAPI):
         # getLogger returns the same singleton everywhere, so usages in
         # controllers should log to this stdout stream handler as well
         logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
         handler = logging.StreamHandler()
         logger.addHandler(handler)
 
@@ -78,6 +84,7 @@ async def lifespan(app: FastAPI):
         "sessions": sessions,
         "parser": parser,
         "llm": llm,
+        "google_sso": google_sso,
     }
 
     if dev_mode:
@@ -118,3 +125,4 @@ app.include_router(llm_handlers.router)
 app.include_router(game_def_handlers.router)
 app.include_router(agent_def_handlers.router)
 app.include_router(session_handlers.router)
+app.include_router(authorization_handlers.router)

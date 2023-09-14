@@ -275,9 +275,7 @@
       }
     },
     {
-      "known_by": [
-        "36fae7b9-f06e-45cc-a32d-6ba82646e26c"
-      ],
+      "known_by": ["36fae7b9-f06e-45cc-a32d-6ba82646e26c"],
       "memory": {
         "importance": 10,
         "description": "At the party, Amelia Turner saw Victoria Ashford slip away around 8 or 8:30 PM.",
@@ -286,9 +284,7 @@
       }
     },
     {
-      "known_by": [
-        "8c678163-c84d-4548-9ae7-cb66c4f924c6"
-      ],
+      "known_by": ["8c678163-c84d-4548-9ae7-cb66c4f924c6"],
       "memory": {
         "importance": 10,
         "description": "As Mei Lin is friends with Li Wei, she has seen Victoria Ashford with him on multiple occasions in Chinatown.",
@@ -414,9 +410,7 @@
       }
     },
     {
-      "known_by": [
-        "1a438867-1381-49bd-8912-1a5ab73ce02f"
-      ],
+      "known_by": ["1a438867-1381-49bd-8912-1a5ab73ce02f"],
       "memory": {
         "importance": 10,
         "description": "Mei Lin is a chinese labor activist and known associate of Li Wei",
@@ -441,9 +435,7 @@
       }
     },
     {
-      "known_by": [
-        "38ea208d-501b-4bce-a8c3-62dfdc11a5c3"
-      ],
+      "known_by": ["38ea208d-501b-4bce-a8c3-62dfdc11a5c3"],
       "memory": {
         "importance": 10,
         "description": "William Harrington has seen Victoria Ashford and Li Wei alone together at night in Chinatown on one of his visits to the brothel.",

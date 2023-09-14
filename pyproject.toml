@@ -15,11 +15,13 @@ dependencies = [
     "pytest>=7.3.1",
     "pytest-asyncio>=0.21.1",
     "redis>=4.6.0",
-    "httpx>=0.24.1",
     "pytest-watch>=4.2.0",
     "fakeredis>=2.17.0",
     "uvicorn[standard]>=0.23.2",
     "types-redis>=4.6.0.3",
+    "httpx>=0.25.0",
+    "fastapi-sso>=0.7.2",
+    "python-jose>=3.3.0",
 ]
 requires-python = ">=3.10"
 license = {text = "Apache2.0"}
