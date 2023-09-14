@@ -21,23 +21,22 @@ async def google_authorize(
 ) -> RedirectResponse:
     # Construct the URL to redirect the user to Google's OAuth2 authorization endpoint
     """Generate login url and redirect"""
-    ## TODO: There is a bug with below, when they fix it, replace with redirect_uri
     with google_sso:
-        return await google_sso.get_login_redirect()
+        return await google_sso.get_login_redirect(
+            redirect_uri=str(request.url_for("google_callback"))
+        )
 
 
 @router.get("/google_callback")
 async def google_callback(
     request: Request,
-    # code: str = Query(None, description="Authorization code"),
-    # # TODO: Add state
-    # state: str = Query(None, description="State parameter"),
-    # parser: ConfigParser = Depends(get_config_parser),
-    # auth_provider_session: OAuth2Session = Depends(get_auth_provider_session),
     google_sso: GoogleSSO = Depends(get_google_sso),
     parser: ConfigParser = Depends(get_config_parser),
 ):
-    user = await google_sso.verify_and_process(request)
+    with google_sso:
+        user = await google_sso.verify_and_process(
+            request, redirect_uri=str(request.url_for("google_callback"))
+        )
     if not user:
         raise HTTPException(status_code=401, detail="Google authentication failed")
     secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
