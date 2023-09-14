@@ -84,6 +84,10 @@ respond ONLY as {knowledge.agent_def.name}."""
     )
 
 
+_CHARACTER_DIALOG_PREPEND = "{character} says: {message}"
+_CHARACTER_INTERACT_PREPEND = "{character} says:"
+
+
 def get_chat_messages(
     knowledge: Knowledge,
     conversation: Conversation,
@@ -93,11 +97,48 @@ def get_chat_messages(
     return (
         [get_system_prompt(knowledge, conversation, facts)]
         + _format_history(knowledge, conversation, history)
-        + [Message(role="assistant", content=knowledge.agent_def.name + ": ")]
+        + [
+            Message(
+                role="assistant",
+                content=_CHARACTER_DIALOG_PREPEND.format(
+                    character=knowledge.agent_def.name, message=""
+                ),
+            )
+        ]
     )
 
 
-_CHARACTER_PREPEND = "{character} says: {message}"
+def get_interact_messages(
+    knowledge: Knowledge,
+    conversation: Conversation,
+    facts: List[str],
+    history: List[Message],
+) -> List[Message]:
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [
+            Message(
+                role="assistant",
+                content=_CHARACTER_INTERACT_PREPEND.format(
+                    character=knowledge.agent_def.name
+                ),
+            )
+        ]
+    )
+
+
+def get_action_messages(
+    knowledge: Knowledge,
+    conversation: Conversation,
+    facts: List[str],
+    history: List[Message],
+) -> List[Message]:
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [Message(role="system", content="You must return a function call.")]
+    )
 
 
 def _format_history(
@@ -108,13 +149,13 @@ def _format_history(
             character = (
                 conversation.correspondent.name
                 if conversation.correspondent
-                else "player"
+                else "Player"
             )
         else:
             character = knowledge.agent_def.name
 
         new_message = message.copy()
-        new_message.content = _CHARACTER_PREPEND.format(
+        new_message.content = _CHARACTER_DIALOG_PREPEND.format(
             character=character, message=message.content
         )
         return new_message
@@ -123,9 +164,14 @@ def _format_history(
 
 
 def clean_response(agent_name: str, message: Message) -> Message:
-    prepend = _CHARACTER_PREPEND.format(character=agent_name, message="").strip()
-    if message.content.startswith(prepend):
-        message.content = message.content[len(prepend) :]
+    dialog_prepend = _CHARACTER_DIALOG_PREPEND.format(
+        character=agent_name, message=""
+    ).strip()
+    if message.content.startswith(dialog_prepend):
+        message.content = message.content[len(dialog_prepend) :]
+    interact_prepend = _CHARACTER_INTERACT_PREPEND.format(character=agent_name).strip()
+    if message.content.startswith(interact_prepend):
+        message.content = message.content[len(interact_prepend) :]
     return message
 
 
