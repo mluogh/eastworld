@@ -8,7 +8,7 @@ from jose import jwt
 from jose.exceptions import JWTError, ExpiredSignatureError
 
 
-def verify_google_id_token(
+def verify_token(
     token: str,
     parser: ConfigParser,
 ):
@@ -18,11 +18,9 @@ def verify_google_id_token(
         jwt.decode(token, secret_key, algorithms=["HS256"])
 
     except ExpiredSignatureError:
-        # The token has expired
         raise HTTPException(status_code=401, detail="Expired token")
 
     except JWTError:
-        # Invalid token
         raise HTTPException(status_code=401, detail="Invalid token")
 
     return None
@@ -48,11 +46,9 @@ class OAuth2Bearer(HTTPBearer):
                     status_code=401, detail="No Authorization header provided"
                 )
             token = credentials.credentials
-            verify_google_id_token(token, parser)
+            verify_token(token, parser)
             return credentials
         return None
 
 
-# TODO: This seems wrong, but we need to use the actual
-#  instantiated scheme as the dependency function
 bearer_scheme = OAuth2Bearer(bearerFormat="bearerToken")

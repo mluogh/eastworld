@@ -27,6 +27,3 @@ def get_llm(request: Request) -> LLMBase:
 
 def get_google_sso(request: Request) -> GoogleSSO:
     return request.state.google_sso
-
-def get_oauth2_scheme(request: Request)-> str:
-    return request.state.oauth2_scheme(request)
