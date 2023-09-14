@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:da9398228caa2d61ded766bff490ed13bd760f3210d627d71cbc2434cc611a7b"
+content_hash = "sha256:88815d15cfcf609e582e858e55d3822e2515e9613f904cce1978008b85ef6e6f"
 
 [[package]]
 name = "aiohttp"
@@ -438,6 +438,19 @@ files = [
 ]
 
 [[package]]
+name = "ecdsa"
+version = "0.18.0"
+requires_python = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+summary = "ECDSA cryptographic signature library (pure python)"
+dependencies = [
+    "six>=1.9.0",
+]
+files = [
+    {file = "ecdsa-0.18.0-py2.py3-none-any.whl", hash = "sha256:80600258e7ed2f16b9aa1d7c295bd70194109ad5a30fdee0eaeefef1d4c559dd"},
+    {file = "ecdsa-0.18.0.tar.gz", hash = "sha256:190348041559e21b22a1d65cee485282ca11a6f81d503fddb84d5017e9ed1e49"},
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.1.1"
 requires_python = ">=3.7"
@@ -482,6 +495,23 @@ dependencies = [
 files = [
     {file = "fastapi-0.95.1-py3-none-any.whl", hash = "sha256:a870d443e5405982e1667dfe372663abf10754f246866056336d7f01c21dab07"},
     {file = "fastapi-0.95.1.tar.gz", hash = "sha256:9569f0a381f8a457ec479d90fa01005cfddaae07546eb1f3fa035bc4797ae7d5"},
+]
+
+[[package]]
+name = "fastapi-sso"
+version = "0.7.2"
+requires_python = ">=3.8,<4.0"
+summary = "FastAPI plugin to enable SSO to most common providers (such as Facebook login, Google login and login via Microsoft Office 365 Account)"
+dependencies = [
+    "fastapi>=0.80",
+    "httpx>=0.23.0",
+    "oauthlib>=3.1.0",
+    "pydantic>=1.8.0",
+    "starlette>=0.13.6",
+]
+files = [
+    {file = "fastapi_sso-0.7.2-py3-none-any.whl", hash = "sha256:025c79319ce848cbfadd51955cb649ad0cad6504709709b495241e23f05a211c"},
+    {file = "fastapi_sso-0.7.2.tar.gz", hash = "sha256:55df0e43a92e8017bb32f8a0ea1fc6263c070d8fa8910e15823d110e3ef2c323"},
 ]
 
 [[package]]
@@ -1625,6 +1655,20 @@ summary = "Read key-value pairs from a .env file and set them as environment var
 files = [
     {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
     {file = "python_dotenv-1.0.0-py3-none-any.whl", hash = "sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a"},
+]
+
+[[package]]
+name = "python-jose"
+version = "3.3.0"
+summary = "JOSE implementation in Python"
+dependencies = [
+    "ecdsa!=0.15",
+    "pyasn1",
+    "rsa",
+]
+files = [
+    {file = "python-jose-3.3.0.tar.gz", hash = "sha256:55779b5e6ad599c6336191246e95eb2293a9ddebd555f796a65f838f07e5d78a"},
+    {file = "python_jose-3.3.0-py2.py3-none-any.whl", hash = "sha256:9b1376b023f8b298536eedd47ae1089bcdb848f1535ab30555cd92002d78923a"},
 ]
 
 [[package]]

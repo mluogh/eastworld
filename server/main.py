@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis.asyncio import Redis
 from requests_oauthlib import OAuth2Session
+from fastapi_sso.sso.google import GoogleSSO  # type: ignore
 
 
 from llm.openai import OpenAIInterface
@@ -30,6 +31,7 @@ GAMES_DEFS_SET = "GAME_DEFS"
 
 # TODO: Add this to a config file
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis_client: Redis[bytes] = Redis(
@@ -48,13 +50,21 @@ async def lifespan(app: FastAPI):
     embedding_size = parser.getint("llm", "embedding_size")
 
     client_id = parser.get("oauth2", "CLIENT_ID", fallback="dummy_client_id")
-    redirect_uri = parser.get("oauth2", "REDIRECT_URI", fallback="http://localhost:8000/auth/callback")
+    redirect_uri = parser.get(
+        "oauth2", "REDIRECT_URI", fallback="http://localhost:8000/auth/callback"
+    )
     scope = parser.get("oauth2", "SCOPES", fallback="openid,profile,email").split(",")
+    client_secret = parser.get(
+        "oauth2",
+        "CLIENT_SECRET",
+        fallback="fake_secret",
+    )
 
-    auth_provider_session = OAuth2Session(
+    google_sso = GoogleSSO(
         client_id=client_id,
-        redirect_uri=redirect_uri,
         scope=scope,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
     )
 
     openai_http_client = ClientSession()
@@ -92,7 +102,7 @@ async def lifespan(app: FastAPI):
         "sessions": sessions,
         "parser": parser,
         "llm": llm,
-        "auth_provider_session": auth_provider_session,
+        "google_sso": google_sso,
     }
 
     if dev_mode:

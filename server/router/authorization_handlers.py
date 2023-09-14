@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, Query
-from fastapi.responses import RedirectResponse
-from requests_oauthlib import OAuth2Session
-
-from schema.token_response import TokenResponse
-from server.context import get_auth_provider_session
-from server.security.auth import verify_google_id_token
+from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi_sso.sso.google import GoogleSSO  # type: ignore
 from configparser import ConfigParser
-from server.context import get_config_parser
+
+from jose import jwt
+
+from server.context import get_google_sso, get_config_parser
+
 
 router = APIRouter(
     prefix="/auth",
@@ -16,45 +16,32 @@ router = APIRouter(
 
 @router.get("/authorize")
 async def authorize(
-    parser: ConfigParser = Depends(get_config_parser),
-    auth_provider_session: OAuth2Session = Depends(get_auth_provider_session),
+    request: Request,
+    google_sso: GoogleSSO = Depends(get_google_sso),
 ) -> RedirectResponse:
     # Construct the URL to redirect the user to Google's OAuth2 authorization endpoint
-    oauth2_authorization_url = parser.get(
-        "oauth2",
-        "AUTHORIZATION_URL",
-        fallback="https://accounts.google.com/o/oauth2/auth",
-    )
-    auth_url, _ = auth_provider_session.authorization_url(  # type: ignore
-        oauth2_authorization_url,
-    )
-    return RedirectResponse(auth_url)
+    """Generate login url and redirect"""
+    ## TODO: There is a bug with below, when they fix it, replace with redirect_uri
+    with google_sso:
+        return await google_sso.get_login_redirect()
 
 
-@router.get("/callback", response_model=TokenResponse)
-async def callback(
-    code: str = Query(None, description="Authorization code"),
-    # TODO: Add state
-    state: str = Query(None, description="State parameter"),
+@router.get("/google_callback")
+async def google_callback(
+    request: Request,
+    # code: str = Query(None, description="Authorization code"),
+    # # TODO: Add state
+    # state: str = Query(None, description="State parameter"),
+    # parser: ConfigParser = Depends(get_config_parser),
+    # auth_provider_session: OAuth2Session = Depends(get_auth_provider_session),
+    google_sso: GoogleSSO = Depends(get_google_sso),
     parser: ConfigParser = Depends(get_config_parser),
-    auth_provider_session: OAuth2Session = Depends(get_auth_provider_session),
-) -> TokenResponse:
-    oauth2_token_url = parser.get(
-        "oauth2",
-        "TOKEN_URL",
-        fallback="https://oauth2.googleapis.com/token",
-    )
-    oauth2_client_secret = parser.get(
-        "oauth2",
-        "CLIENT_SECRET",
-        fallback="fake_secret",
-    )
-    tokens = auth_provider_session.fetch_token(  # type: ignore
-        oauth2_token_url, code=code, client_secret=oauth2_client_secret
-    )
-
-    id_token = tokens["id_token"]
-
-    verify_google_id_token(id_token, parser)
-
-    return TokenResponse(id_token=id_token, expires_in_seconds=tokens["expires_in"])
+):
+    user = await google_sso.verify_and_process(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Google authentication failed")
+    secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
+    token = jwt.encode(user.dict(), key=secret_key, algorithm="HS256")
+    response = JSONResponse(content={"token": token})
+    response.set_cookie(key="token", value=token)
+    return response

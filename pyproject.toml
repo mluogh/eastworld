@@ -24,6 +24,8 @@ dependencies = [
     "google-auth>=2.23.0",
     "google-auth-stubs>=0.2.0",
     "httpx>=0.25.0",
+    "fastapi-sso>=0.7.2",
+    "python-jose>=3.3.0",
 ]
 requires-python = ">=3.10"
 license = {text = "Apache2.0"}

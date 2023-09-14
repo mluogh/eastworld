@@ -1,12 +1,11 @@
 from typing import Optional
-from google.oauth2 import id_token
-from google.auth.transport import requests
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from google.auth.exceptions import GoogleAuthError
 from starlette.requests import Request
 from configparser import ConfigParser
 from server.context import get_config_parser
+from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError
 
 
 def verify_google_id_token(
@@ -14,18 +13,18 @@ def verify_google_id_token(
     parser: ConfigParser,
 ):
     try:
-        client_id = parser.get("oauth2", "CLIENT_ID", fallback="dummy_client_id")
+        secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
         # Validate the token and return user info
-        id_token.verify_oauth2_token(  # type: ignore
-            token, requests.Request(), client_id
-        )
+        jwt.decode(token, secret_key, algorithms=["HS256"])
 
-    except ValueError:
+    except ExpiredSignatureError:
+        # The token has expired
+        raise HTTPException(status_code=401, detail="Expired token")
+
+    except JWTError:
         # Invalid token
         raise HTTPException(status_code=401, detail="Invalid token")
-    except GoogleAuthError:
-        # Invalid token
-        raise HTTPException(status_code=401, detail="Invalid issuer")
+
     return None
 
 
@@ -33,6 +32,9 @@ class OAuth2Bearer(HTTPBearer):
     def __init__(self, bearerFormat: str):
         super().__init__(bearerFormat=bearerFormat)
 
+    # We inject config parser here as this is part of the call stack.
+    # Somewhat unconventional, if there is a better way to do this, please
+    # make a pr.
     async def __call__(
         self, request: Request, parser: ConfigParser = Depends(get_config_parser)
     ):
