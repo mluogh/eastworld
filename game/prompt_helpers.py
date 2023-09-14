@@ -6,35 +6,54 @@ from schema import Action, ActionCompletion, Conversation, Knowledge, Message, P
 def get_knowledge_fragment(
     knowledge: Knowledge, conversation: Conversation, facts: List[str]
 ) -> str:
-    fragment = """You are roleplaying as a character named {knowledge.agent_def.name}.
+    fragment = [
+        """You are roleplaying as a character named {knowledge.agent_def.name}.
 Description of {knowledge.agent_def.name}: 
 {knowledge.agent_def.description} 
 \n Description of the world you live in: {knowledge.game_description}.
  """
+    ]
 
-    if knowledge.agent_def.core_facts:
-        fragment += """\n{knowledge.agent_def.name} knows the following: 
+    if knowledge.agent_def.core_facts.strip():
+        fragment.append(
+            """{knowledge.agent_def.name} knows the following: 
 {knowledge.agent_def.core_facts}"""
+        )
 
-    if knowledge.agent_def.example_speech:
-        fragment += """\nExample of {knowledge.agent_def.name}'s manner of speech: 
+    if knowledge.agent_def.example_speech.strip():
+        fragment.append(
+            """Example of {knowledge.agent_def.name}'s manner of speech: 
 {knowledge.agent_def.example_speech}"""
+        )
 
     if facts:
-        fragment += "\nYou have the following memories: \n{}".format("\n".join(facts))
+        fragment.append(
+            "{knowledge.agent_def.name} has the following memories: \n{facts}"
+        )
 
     if conversation.correspondent:
-        fragment += """\nAs {knowledge.agent_def.name}, you are currently speaking to \
+        fragment.append(
+            """As {knowledge.agent_def.name}, you are currently speaking to \
 {conversation.correspondent.name}. 
 \nDescription of {conversation.correspondent.name}: 
 {conversation.correspondent.description}
 """
+        )
 
     if conversation.scene_description:
-        fragment += """\nThe conversation is occuring in the following scene:
+        fragment.append(
+            """\nThe conversation is occuring in the following scene:
 {conversation.scene_description}"""
+        )
 
-    return fragment.format(knowledge=knowledge, conversation=conversation, facts=facts)
+    return "\n\n".join(
+        [
+            piece.format(
+                knowledge=knowledge, conversation=conversation, facts="\n".join(facts)
+            )
+            for piece in fragment
+        ]
+    )
 
 
 def get_system_prompt(
