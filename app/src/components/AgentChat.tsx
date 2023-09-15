@@ -98,6 +98,7 @@ export default function Agent() {
       emptyChat,
     );
     setMessages([]);
+    setDebugMessages([]);
 
     setChatStarted(true);
   };

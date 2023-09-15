@@ -6,35 +6,54 @@ from schema import Action, ActionCompletion, Conversation, Knowledge, Message, P
 def get_knowledge_fragment(
     knowledge: Knowledge, conversation: Conversation, facts: List[str]
 ) -> str:
-    fragment = """You are roleplaying as a character named {knowledge.agent_def.name}.
+    fragment = [
+        """You are roleplaying as a character named {knowledge.agent_def.name}.
 Description of {knowledge.agent_def.name}: 
 {knowledge.agent_def.description} 
 \n Description of the world you live in: {knowledge.game_description}.
  """
+    ]
 
-    if knowledge.agent_def.core_facts:
-        fragment += """\n{knowledge.agent_def.name} knows the following: 
+    if knowledge.agent_def.core_facts.strip():
+        fragment.append(
+            """{knowledge.agent_def.name} knows the following: 
 {knowledge.agent_def.core_facts}"""
+        )
 
-    if knowledge.agent_def.example_speech:
-        fragment += """\nExample of {knowledge.agent_def.name}'s manner of speech: 
+    if knowledge.agent_def.example_speech.strip():
+        fragment.append(
+            """Example of {knowledge.agent_def.name}'s manner of speech: 
 {knowledge.agent_def.example_speech}"""
+        )
 
     if facts:
-        fragment += "\nYou have the following memories: {}".format("\n".join(facts))
+        fragment.append(
+            "{knowledge.agent_def.name} has the following memories: \n{facts}"
+        )
 
     if conversation.correspondent:
-        fragment += """\nAs {knowledge.agent_def.name}, you are currently speaking to \
+        fragment.append(
+            """As {knowledge.agent_def.name}, you are currently speaking to \
 {conversation.correspondent.name}. 
 \nDescription of {conversation.correspondent.name}: 
 {conversation.correspondent.description}
 """
+        )
 
     if conversation.scene_description:
-        fragment += """\nThe conversation is occuring in the following scene:
+        fragment.append(
+            """\nThe conversation is occuring in the following scene:
 {conversation.scene_description}"""
+        )
 
-    return fragment.format(knowledge=knowledge, conversation=conversation, facts=facts)
+    return "\n\n".join(
+        [
+            piece.format(
+                knowledge=knowledge, conversation=conversation, facts="\n".join(facts)
+            )
+            for piece in fragment
+        ]
+    )
 
 
 def get_system_prompt(
@@ -42,12 +61,20 @@ def get_system_prompt(
 ) -> Message:
     system_prompt = get_knowledge_fragment(knowledge, conversation, facts)
 
-    system_prompt += """\nYou MUST obey the following instructions:
+    instructions: List[str] = []
+    instructions.append(
+        """\nYou MUST obey the following instructions:
 Keep responses concise.
 Do not offer information that is irrelevant to the current conversation.
-NEVER mention you are an AI language model. You MUST stay in character."""
-    system_prompt += knowledge.agent_def.instructions or ""
-    system_prompt += conversation.instructions or ""
+"""
+    )
+    instructions.append(knowledge.agent_def.instructions or "")
+    instructions.append(conversation.instructions or "")
+    instructions.append(
+        """NEVER mention you are an AI language model. You MUST stay in character and \
+respond ONLY as {knowledge.agent_def.name}."""
+    )
+    system_prompt += "\n".join(instructions)
 
     return Message(
         role="system",
@@ -57,13 +84,95 @@ NEVER mention you are an AI language model. You MUST stay in character."""
     )
 
 
+_CHARACTER_DIALOG_PREPEND = "{character} says: {message}"
+_CHARACTER_INTERACT_PREPEND = "{character} says:"
+
+
 def get_chat_messages(
     knowledge: Knowledge,
     conversation: Conversation,
     facts: List[str],
     history: List[Message],
 ) -> List[Message]:
-    return [get_system_prompt(knowledge, conversation, facts)] + history
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [
+            Message(
+                role="assistant",
+                content=_CHARACTER_DIALOG_PREPEND.format(
+                    character=knowledge.agent_def.name, message=""
+                ),
+            )
+        ]
+    )
+
+
+def get_interact_messages(
+    knowledge: Knowledge,
+    conversation: Conversation,
+    facts: List[str],
+    history: List[Message],
+) -> List[Message]:
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [
+            Message(
+                role="assistant",
+                content=_CHARACTER_INTERACT_PREPEND.format(
+                    character=knowledge.agent_def.name
+                ),
+            )
+        ]
+    )
+
+
+def get_action_messages(
+    knowledge: Knowledge,
+    conversation: Conversation,
+    facts: List[str],
+    history: List[Message],
+) -> List[Message]:
+    return (
+        [get_system_prompt(knowledge, conversation, facts)]
+        + _format_history(knowledge, conversation, history)
+        + [Message(role="system", content="You must return a function call.")]
+    )
+
+
+def _format_history(
+    knowledge: Knowledge, conversation: Conversation, history: List[Message]
+) -> List[Message]:
+    def format_message(message: Message) -> Message:
+        if message.role == "user":
+            character = (
+                conversation.correspondent.name
+                if conversation.correspondent
+                else "Player"
+            )
+        else:
+            character = knowledge.agent_def.name
+
+        new_message = message.copy()
+        new_message.content = _CHARACTER_DIALOG_PREPEND.format(
+            character=character, message=message.content
+        )
+        return new_message
+
+    return [format_message(message) for message in history]
+
+
+def clean_response(agent_name: str, message: Message) -> Message:
+    dialog_prepend = _CHARACTER_DIALOG_PREPEND.format(
+        character=agent_name, message=""
+    ).strip()
+    if message.content.startswith(dialog_prepend):
+        message.content = message.content[len(dialog_prepend) :]
+    interact_prepend = _CHARACTER_INTERACT_PREPEND.format(character=agent_name).strip()
+    if message.content.startswith(interact_prepend):
+        message.content = message.content[len(interact_prepend) :]
+    return message
 
 
 def get_query_messages(
