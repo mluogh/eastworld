@@ -35,19 +35,19 @@ class OAuth2Bearer(HTTPBearer):
     ):
         use_auth = parser.getboolean("server", "auth_required", fallback=False)
         if use_auth:
-            credentials: Optional[
-                HTTPAuthorizationCredentials
-            ] = await super().__call__(request)
-            if not credentials:
+            token: Optional[str] = request.cookies.get("token")
+            if not token:
                 raise HTTPException(
-                    status_code=401, detail="No Authorization header provided"
+                    status_code=401, detail="No token provided in cookies"
                 )
-            token = credentials.credentials
             user = verify_token(token, parser)
             if "email" not in user:
                 raise HTTPException(status_code=401, detail="No email provided.")
 
             request.state.email = user["email"]
+            credentials = HTTPAuthorizationCredentials(
+                scheme="Bearer", credentials=token
+            )
             return credentials
         return None
 
