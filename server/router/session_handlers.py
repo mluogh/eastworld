@@ -33,8 +33,8 @@ from server.schema.debug import (
     InteractWithDebug,
     MessageWithDebug,
 )
+from server.security.auth import authenticate
 from server.typecheck_fighter import RedisType
-from server.security.auth import bearer_scheme
 
 router = APIRouter(prefix="/session", tags=["Game Sessions"])
 
@@ -79,14 +79,18 @@ def get_agent_def(agent: str, session: Session) -> AgentDef:
     return agent_def
 
 
-@router.post("/create", operation_id="create_session", response_model=str)
+@router.post(
+    "/create",
+    operation_id="create_session",
+    response_model=str,
+    dependencies=[Depends(authenticate)],
+)
 async def create_session(
     game_uuid: str,
     sessions: SessionsType = Depends(get_sessions),
     config_parser: ConfigParser = Depends(get_config_parser),
     redis: RedisType = Depends(get_redis),
     llm: LLMBase = Depends(get_llm),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Given a Game, creates a game session and populates the Agents
     with their lore and knowledge.
@@ -148,7 +152,6 @@ async def create_session(
 def get_sessions_list(
     game_uuid: str,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Lists all active sessions for a given Game.
 
@@ -169,6 +172,7 @@ def get_sessions_list(
 @router.post(
     "/{session_uuid}/start_chat",
     operation_id="start_chat",
+    dependencies=[Depends(authenticate)],
 )
 async def start_conversation(
     session_uuid: str,
@@ -177,7 +181,6 @@ async def start_conversation(
     correspondent: Optional[str] = None,
     conversation: Optional[Conversation] = None,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Starts a chat with the given agent. Clears previous conversation
     history.
@@ -214,7 +217,7 @@ async def chat(
     message: str,
     send_debug: bool = False,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
 ) -> MessageWithDebug:
     """Sends `message` to the given agent. They will respond with text.
 
@@ -246,6 +249,7 @@ async def chat(
     "/{session_uuid}/interact",
     operation_id="interact",
     response_model=InteractWithDebug,
+    dependencies=[Depends(authenticate)],
 )
 async def interact(
     session_uuid: str,
@@ -253,7 +257,6 @@ async def interact(
     message: str,
     send_debug: bool = False,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Sends message to the given agent. They will respond with
     an Action or text.
@@ -288,6 +291,7 @@ async def interact(
     "/{session_uuid}/act",
     operation_id="action",
     response_model=Optional[ActionCompletionWithDebug],
+    dependencies=[Depends(authenticate)],
 )
 async def act(
     session_uuid: str,
@@ -295,7 +299,6 @@ async def act(
     message: Optional[str],
     send_debug: bool = False,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Asks the given agent to perform an action. Optionally
     after sending a message.
@@ -324,13 +327,17 @@ async def act(
     return action_with_debug
 
 
-@router.post("/{session_uuid}/guardrail", operation_id="guardrail", response_model=int)
+@router.post(
+    "/{session_uuid}/guardrail",
+    operation_id="guardrail",
+    response_model=int,
+    dependencies=[Depends(authenticate)],
+)
 async def guardrail(
     session_uuid: str,
     agent: str,
     message: str,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Asks whether or not what the player is saying is appropriate given
     the time period, tone, and intent of the game.
@@ -351,13 +358,17 @@ async def guardrail(
     return await gen_agent.guardrail(message)
 
 
-@router.post("/{session_uuid}/query", operation_id="query", response_model=List[int])
+@router.post(
+    "/{session_uuid}/query",
+    operation_id="query",
+    response_model=List[int],
+    dependencies=[Depends(authenticate)],
+)
 async def query(
     session_uuid: str,
     agent: str,
     queries: List[str],
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(bearer_scheme),
 ):
     """Responds to queries into how the Agent is feeling during conversation
     with the player. Write in second person. You can use {player} to refer
@@ -390,12 +401,12 @@ async def query(
 @router.put(
     "/sync",
     operation_id="sync_sessions_to_game_defs",
+    dependencies=[Depends(authenticate)],
 )
 async def updateSessions(
     game_uuid: str,
     sessions: SessionsType = Depends(get_sessions),
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
 ):
     jsoned = await redis.get(game_uuid)
     if not jsoned:
