@@ -8,7 +8,7 @@ from typing import List
 from aiohttp import ClientSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_limiter import FastAPILimiter
+from fastapi_limiter import FastAPILimiter  # type: ignore
 from redis.asyncio import Redis
 
 from llm.openai import OpenAIInterface
