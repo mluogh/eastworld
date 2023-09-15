@@ -35,6 +35,7 @@ from server.schema.debug import (
 )
 from server.security.auth import authenticate
 from server.typecheck_fighter import RedisType
+from server.util.rate_limit import rate_limiter
 
 router = APIRouter(prefix="/session", tags=["Game Sessions"])
 
@@ -209,7 +210,10 @@ async def start_conversation(
 
 
 @router.post(
-    "/{session_uuid}/chat", operation_id="chat", response_model=MessageWithDebug
+    "/{session_uuid}/chat",
+    operation_id="chat",
+    response_model=MessageWithDebug,
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def chat(
     session_uuid: str,
@@ -217,7 +221,6 @@ async def chat(
     message: str,
     send_debug: bool = False,
     sessions: SessionsType = Depends(get_sessions),
-    authorized: str = Depends(authenticate),
 ) -> MessageWithDebug:
     """Sends `message` to the given agent. They will respond with text.
 
@@ -249,7 +252,7 @@ async def chat(
     "/{session_uuid}/interact",
     operation_id="interact",
     response_model=InteractWithDebug,
-    dependencies=[Depends(authenticate)],
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def interact(
     session_uuid: str,
@@ -291,7 +294,7 @@ async def interact(
     "/{session_uuid}/act",
     operation_id="action",
     response_model=Optional[ActionCompletionWithDebug],
-    dependencies=[Depends(authenticate)],
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def act(
     session_uuid: str,

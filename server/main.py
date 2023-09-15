@@ -8,6 +8,7 @@ from typing import List
 from aiohttp import ClientSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_limiter import FastAPILimiter
 from redis.asyncio import Redis
 
 from llm.openai import OpenAIInterface
@@ -15,15 +16,15 @@ from schema import GameDef
 from server.context import SessionsType
 from server.router import (
     agent_def_handlers,
+    authorization_handlers,
     game_def_handlers,
     llm_handlers,
     session_handlers,
     util_handlers,
-    authorization_handlers,
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
-from server.util.sso import generate_google_sso, generate_github_sso
+from server.util.sso import generate_github_sso, generate_google_sso
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
@@ -59,6 +60,8 @@ async def lifespan(app: FastAPI):
         client_session=openai_http_client,
     )
 
+    await FastAPILimiter.init(redis_client)  # type: ignore
+
     dev_mode = parser.getboolean("server", "dev_mode", fallback=False)
     if dev_mode:
         # getLogger returns the same singleton everywhere, so usages in
@@ -86,7 +89,7 @@ async def lifespan(app: FastAPI):
         "parser": parser,
         "llm": llm,
         "google_sso": google_sso,
-        "github_sso": github_sso
+        "github_sso": github_sso,
     }
 
     if dev_mode:

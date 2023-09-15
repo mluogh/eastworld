@@ -22,7 +22,6 @@ GAME_DEFS_SET = "GAME_DEFS"
 async def create_game_def(
     game_name: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     game = GameDef(name=game_name)
     uuid = str(game.uuid)
@@ -54,7 +53,6 @@ async def get_games_list(
 async def get_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -80,7 +78,6 @@ async def get_game_lore(
 async def get_game_def_json(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -92,7 +89,6 @@ async def get_game_def_json(
 async def update_game_def_json(
     jsoned_game: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     game: GameDef = GameDef.parse_raw(jsoned_game)
     await update_game_def(str(game.uuid), game, overwrite_agents=True, redis=redis)
@@ -104,7 +100,6 @@ async def update_game_def(
     game: GameDef,
     overwrite_agents: bool = False,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     game.uuid = UUID4(uuid)
     pipe = redis.pipeline()
@@ -134,7 +129,6 @@ async def update_game_def(
 async def delete_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     pipe = redis.pipeline()
     pipe.delete(uuid)
