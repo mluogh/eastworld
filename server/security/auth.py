@@ -1,11 +1,13 @@
-from typing import Optional
-from fastapi import HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from starlette.requests import Request
 from configparser import ConfigParser
-from server.context import get_config_parser
+from typing import Optional
+
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError
+from jose.exceptions import ExpiredSignatureError, JWTError
+from starlette.requests import Request
+
+from server.context import get_config_parser
 
 
 def verify_token(
@@ -15,7 +17,7 @@ def verify_token(
     try:
         secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
         # Validate the token and return user info
-        jwt.decode(token, secret_key, algorithms=["HS256"])
+        return jwt.decode(token, secret_key, algorithms=["HS256"])
 
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
@@ -23,16 +25,11 @@ def verify_token(
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    return None
-
 
 class OAuth2Bearer(HTTPBearer):
     def __init__(self, bearerFormat: str):
         super().__init__(bearerFormat=bearerFormat)
 
-    # We inject config parser here as this is part of the call stack.
-    # Somewhat unconventional, if there is a better way to do this, please
-    # make a pr.
     async def __call__(
         self, request: Request, parser: ConfigParser = Depends(get_config_parser)
     ):
@@ -43,7 +40,11 @@ class OAuth2Bearer(HTTPBearer):
                 raise HTTPException(
                     status_code=401, detail="No token provided in cookies"
                 )
-            verify_token(token, parser)
+            user = verify_token(token, parser)
+            if "email" not in user:
+                raise HTTPException(status_code=401, detail="No email provided.")
+
+            request.state.email = user["email"]
             credentials = HTTPAuthorizationCredentials(
                 scheme="Bearer", credentials=token
             )
@@ -51,4 +52,4 @@ class OAuth2Bearer(HTTPBearer):
         return None
 
 
-bearer_scheme = OAuth2Bearer(bearerFormat="bearerToken")
+authenticate = OAuth2Bearer(bearerFormat="bearerToken")

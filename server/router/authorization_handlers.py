@@ -1,15 +1,14 @@
-from typing import Optional
-from fastapi import APIRouter, Depends, Request, HTTPException, Query
-from fastapi.responses import RedirectResponse
-from fastapi_sso.sso.google import GoogleSSO  # type: ignore
-from fastapi_sso.sso.github import GithubSSO  # type: ignore
 from configparser import ConfigParser
+from typing import Optional
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import RedirectResponse
+from fastapi_sso.sso.github import GithubSSO  # type: ignore
+from fastapi_sso.sso.google import GoogleSSO  # type: ignore
 from jose import jwt
 
-from server.context import get_google_sso, get_config_parser, get_github_sso
-from server.security.auth import bearer_scheme
-
+from server.context import get_config_parser, get_github_sso, get_google_sso
+from server.security.auth import authenticate
 
 router = APIRouter(
     prefix="/auth",
@@ -95,7 +94,7 @@ async def github_callback(
 
 
 @router.get("/check", operation_id="check")
-async def check(authorized: str = Depends(bearer_scheme)):
+async def check(authorized: str = Depends(authenticate)):
     return {
         "isAuthenticated": True,
     }
