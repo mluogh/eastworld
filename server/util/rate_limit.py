@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 
 from fastapi import Request, Response
-from fastapi_limiter import default_identifier  # type: ignore
 from fastapi_limiter.depends import RateLimiter  # type: ignore
 
 parser = ConfigParser()
@@ -14,10 +13,13 @@ minutes = parser.getint("rate_limit", "minutes", fallback=0)
 hours = parser.getint("rate_limit", "hours", fallback=0)
 
 
-def user(request: Request):
+async def user(request: Request):
     if parser.getboolean("server", "auth_required", fallback=False):
-        return request.state.email
-    return default_identifier(request)
+        return str(request.state.email)
+    if request.client:
+        ip, _ = request.client
+        return ip
+    raise Exception("No user found.")
 
 
 base_limiter = RateLimiter(
