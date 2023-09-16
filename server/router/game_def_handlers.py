@@ -7,8 +7,8 @@ from pydantic import UUID4
 from schema import GameDef, Lore
 from server.context import get_redis
 from server.schema.summary import GameDefSummary
+from server.security.auth import bearer_scheme, protected_resource
 from server.typecheck_fighter import RedisType, pipeline_exec
-from server.security.auth import bearer_scheme
 
 router = APIRouter(
     prefix="/game",
@@ -23,6 +23,7 @@ async def create_game_def(
     game_name: str,
     redis: RedisType = Depends(get_redis),
     authorized: str = Depends(bearer_scheme),
+    protected_resource: str = Depends(protected_resource),
 ):
     game = GameDef(name=game_name)
     uuid = str(game.uuid)
@@ -93,6 +94,7 @@ async def update_game_def_json(
     jsoned_game: str,
     redis: RedisType = Depends(get_redis),
     authorized: str = Depends(bearer_scheme),
+    protected_resource: str = Depends(protected_resource),
 ):
     game: GameDef = GameDef.parse_raw(jsoned_game)
     await update_game_def(str(game.uuid), game, overwrite_agents=True, redis=redis)
@@ -105,6 +107,7 @@ async def update_game_def(
     overwrite_agents: bool = False,
     redis: RedisType = Depends(get_redis),
     authorized: str = Depends(bearer_scheme),
+    protected_resource: str = Depends(protected_resource),
 ):
     game.uuid = UUID4(uuid)
     pipe = redis.pipeline()
@@ -135,6 +138,7 @@ async def delete_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
     authorized: str = Depends(bearer_scheme),
+    protected_resource: str = Depends(protected_resource),
 ):
     pipe = redis.pipeline()
     pipe.delete(uuid)
