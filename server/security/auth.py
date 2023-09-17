@@ -58,7 +58,7 @@ class OAuth2Bearer(HTTPBearer):
 authenticate = OAuth2Bearer(bearerFormat="bearerToken")
 
 
-def protected_resource(
+def password_protected(
     password: str = Header(None), parser: ConfigParser = Depends(get_config_parser)
 ):
     is_production = parser.get("server", "environment", fallback="dev") == "prod"

@@ -7,7 +7,7 @@ from pydantic import UUID4
 from schema import GameDef, Lore
 from server.context import get_redis
 from server.schema.summary import GameDefSummary
-from server.security.auth import authenticate, protected_resource
+from server.security.auth import authenticate, password_protected
 from server.typecheck_fighter import RedisType, pipeline_exec
 
 router = APIRouter(
@@ -18,12 +18,15 @@ router = APIRouter(
 GAME_DEFS_SET = "GAME_DEFS"
 
 
-@router.post("/create", operation_id="create_game", response_model=GameDef)
+@router.post(
+    "/create",
+    operation_id="create_game",
+    response_model=GameDef,
+    dependencies=[Depends(authenticate), Depends(password_protected)],
+)
 async def create_game_def(
     game_name: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
-    protected_resource: str = Depends(protected_resource),
 ):
     game = GameDef(name=game_name)
     uuid = str(game.uuid)
@@ -94,7 +97,7 @@ async def get_game_def_json(
 @router.put(
     "/json",
     operation_id="create_game_json",
-    dependencies=[Depends(authenticate), Depends(protected_resource)],
+    dependencies=[Depends(authenticate), Depends(password_protected)],
 )
 async def update_game_def_json(
     jsoned_game: str,
@@ -108,7 +111,7 @@ async def update_game_def_json(
     "/{uuid}/update",
     operation_id="update_game",
     response_model=GameDef,
-    dependencies=[Depends(authenticate), Depends(protected_resource)],
+    dependencies=[Depends(authenticate), Depends(password_protected)],
 )
 async def update_game_def(
     uuid: str,
@@ -143,7 +146,7 @@ async def update_game_def(
 @router.delete(
     "/{uuid}",
     operation_id="delete_game",
-    dependencies=[Depends(authenticate), Depends(protected_resource)],
+    dependencies=[Depends(authenticate), Depends(password_protected)],
 )
 async def delete_game_def(
     uuid: str,
