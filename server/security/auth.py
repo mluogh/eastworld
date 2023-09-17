@@ -1,8 +1,11 @@
 from configparser import ConfigParser
 from typing import Optional
 
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Depends, Header, HTTPException
+from fastapi.security import (
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTError
 from starlette.requests import Request
@@ -53,3 +56,16 @@ class OAuth2Bearer(HTTPBearer):
 
 
 authenticate = OAuth2Bearer(bearerFormat="bearerToken")
+
+
+def password_protected(
+    password: str = Header(None), parser: ConfigParser = Depends(get_config_parser)
+):
+    is_production = parser.get("server", "environment", fallback="dev") == "prod"
+    protected_resource_password = parser.get(
+        "oauth2", "PROTECTED_RESOURCE_PASSWORD", fallback=""
+    )
+    if is_production and password != protected_resource_password:
+        raise HTTPException(status_code=401, detail="Invalid password for resource")
+
+    return password
