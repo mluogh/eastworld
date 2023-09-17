@@ -7,7 +7,7 @@ from pydantic import UUID4
 from schema import GameDef, Lore
 from server.context import get_redis
 from server.schema.summary import GameDefSummary
-from server.security.auth import bearer_scheme, protected_resource
+from server.security.auth import authenticate, protected_resource
 from server.typecheck_fighter import RedisType, pipeline_exec
 
 router = APIRouter(
@@ -22,7 +22,7 @@ GAME_DEFS_SET = "GAME_DEFS"
 async def create_game_def(
     game_name: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
     protected_resource: str = Depends(protected_resource),
 ):
     game = GameDef(name=game_name)
@@ -36,7 +36,7 @@ async def create_game_def(
 
 @router.get("/list", operation_id="list_games", response_model=List[GameDefSummary])
 async def get_games_list(
-    redis: RedisType = Depends(get_redis), authorized: str = Depends(bearer_scheme)
+    redis: RedisType = Depends(get_redis), authorized: str = Depends(authenticate)
 ):
     games = await redis.smembers(GAME_DEFS_SET)
     pipeline = redis.pipeline()
@@ -55,7 +55,6 @@ async def get_games_list(
 async def get_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -68,7 +67,7 @@ async def get_game_def(
 async def get_game_lore(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -81,7 +80,6 @@ async def get_game_lore(
 async def get_game_def_json(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -93,7 +91,7 @@ async def get_game_def_json(
 async def update_game_def_json(
     jsoned_game: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
     protected_resource: str = Depends(protected_resource),
 ):
     game: GameDef = GameDef.parse_raw(jsoned_game)
@@ -106,7 +104,7 @@ async def update_game_def(
     game: GameDef,
     overwrite_agents: bool = False,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
     protected_resource: str = Depends(protected_resource),
 ):
     game.uuid = UUID4(uuid)
@@ -137,7 +135,7 @@ async def update_game_def(
 async def delete_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(bearer_scheme),
+    authorized: str = Depends(authenticate),
     protected_resource: str = Depends(protected_resource),
 ):
     pipe = redis.pipeline()

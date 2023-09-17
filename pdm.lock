@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:a874dabf998ad07fa0d5bc9cdf4f76ab92515510a6465bcb62c1c32ba2793fe8"
+content_hash = "sha256:9ab56df52660e527a706159d695d7c937635babf5a18a057bc70e2b80c57fc39"
 
 [[package]]
 name = "aiohttp"
@@ -485,6 +485,20 @@ dependencies = [
 files = [
     {file = "fastapi-0.95.1-py3-none-any.whl", hash = "sha256:a870d443e5405982e1667dfe372663abf10754f246866056336d7f01c21dab07"},
     {file = "fastapi-0.95.1.tar.gz", hash = "sha256:9569f0a381f8a457ec479d90fa01005cfddaae07546eb1f3fa035bc4797ae7d5"},
+]
+
+[[package]]
+name = "fastapi-limiter"
+version = "0.1.5"
+requires_python = ">=3.7,<4.0"
+summary = "A request rate limiter for fastapi"
+dependencies = [
+    "fastapi",
+    "redis<5.0.0,>=4.2.0rc1",
+]
+files = [
+    {file = "fastapi-limiter-0.1.5.tar.gz", hash = "sha256:546be0fef3b10c19ab3ed2b9c47c5a3ac1924e71210bc1254445a059430bf3b7"},
+    {file = "fastapi_limiter-0.1.5-py3-none-any.whl", hash = "sha256:f01681f3927b0750ff642e1d8dcde6c0f79d1b1dfd8164b909a74e7c75b8cce6"},
 ]
 
 [[package]]

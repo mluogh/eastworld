@@ -20,7 +20,7 @@ def verify_token(
     try:
         secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
         # Validate the token and return user info
-        jwt.decode(token, secret_key, algorithms=["HS256"])
+        return jwt.decode(token, secret_key, algorithms=["HS256"])
 
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
@@ -28,35 +28,34 @@ def verify_token(
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    return None
-
 
 class OAuth2Bearer(HTTPBearer):
     def __init__(self, bearerFormat: str):
         super().__init__(bearerFormat=bearerFormat)
 
-    # We inject config parser here as this is part of the call stack.
-    # Somewhat unconventional, if there is a better way to do this, please
-    # make a pr.
     async def __call__(
         self, request: Request, parser: ConfigParser = Depends(get_config_parser)
     ):
         use_auth = parser.getboolean("server", "auth_required", fallback=False)
         if use_auth:
-            credentials: Optional[
-                HTTPAuthorizationCredentials
-            ] = await super().__call__(request)
-            if not credentials:
+            token: Optional[str] = request.cookies.get("token")
+            if not token:
                 raise HTTPException(
-                    status_code=401, detail="No Authorization header provided"
+                    status_code=401, detail="No token provided in cookies"
                 )
-            token = credentials.credentials
-            verify_token(token, parser)
+            user = verify_token(token, parser)
+            if "email" not in user:
+                raise HTTPException(status_code=401, detail="No email provided.")
+
+            request.state.email = user["email"]
+            credentials = HTTPAuthorizationCredentials(
+                scheme="Bearer", credentials=token
+            )
             return credentials
         return None
 
 
-bearer_scheme = OAuth2Bearer(bearerFormat="bearerToken")
+authenticate = OAuth2Bearer(bearerFormat="bearerToken")
 
 
 def protected_resource(
