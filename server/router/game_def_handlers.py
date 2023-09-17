@@ -63,11 +63,15 @@ async def get_game_def(
     return GameDef.parse_raw(jsoned)
 
 
-@router.get("/{uuid}/lore", operation_id="get_lore", response_model=List[Lore])
+@router.get(
+    "/{uuid}/lore",
+    operation_id="get_lore",
+    response_model=List[Lore],
+    dependencies=[Depends(authenticate)],
+)
 async def get_game_lore(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
 ):
     jsoned = await redis.get(uuid)
     if not jsoned:
@@ -87,25 +91,30 @@ async def get_game_def_json(
     return jsonable_encoder(GameDef.parse_raw(jsoned))
 
 
-@router.put("/json", operation_id="create_game_json")
+@router.put(
+    "/json",
+    operation_id="create_game_json",
+    dependencies=[Depends(authenticate), Depends(protected_resource)],
+)
 async def update_game_def_json(
     jsoned_game: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
-    protected_resource: str = Depends(protected_resource),
 ):
     game: GameDef = GameDef.parse_raw(jsoned_game)
     await update_game_def(str(game.uuid), game, overwrite_agents=True, redis=redis)
 
 
-@router.put("/{uuid}/update", operation_id="update_game", response_model=GameDef)
+@router.put(
+    "/{uuid}/update",
+    operation_id="update_game",
+    response_model=GameDef,
+    dependencies=[Depends(authenticate), Depends(protected_resource)],
+)
 async def update_game_def(
     uuid: str,
     game: GameDef,
     overwrite_agents: bool = False,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
-    protected_resource: str = Depends(protected_resource),
 ):
     game.uuid = UUID4(uuid)
     pipe = redis.pipeline()
@@ -131,12 +140,14 @@ async def update_game_def(
     return game
 
 
-@router.delete("/{uuid}", operation_id="delete_game")
+@router.delete(
+    "/{uuid}",
+    operation_id="delete_game",
+    dependencies=[Depends(authenticate), Depends(protected_resource)],
+)
 async def delete_game_def(
     uuid: str,
     redis: RedisType = Depends(get_redis),
-    authorized: str = Depends(authenticate),
-    protected_resource: str = Depends(protected_resource),
 ):
     pipe = redis.pipeline()
     pipe.delete(uuid)

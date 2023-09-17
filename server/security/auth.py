@@ -61,11 +61,11 @@ authenticate = OAuth2Bearer(bearerFormat="bearerToken")
 def protected_resource(
     password: str = Header(None), parser: ConfigParser = Depends(get_config_parser)
 ):
-    production = parser.get("server", "environment", fallback="dev") == "prod"
+    is_production = parser.get("server", "environment", fallback="dev") == "prod"
     protected_resource_password = parser.get(
-        "oauth2", "PROTECTED_RESOURCE_PASSWORD", fallback="pass"
+        "oauth2", "PROTECTED_RESOURCE_PASSWORD", fallback=""
     )
-    if production and password != protected_resource_password:
+    if is_production and password != protected_resource_password:
         raise HTTPException(status_code=401, detail="Invalid password for resource")
 
     return password
