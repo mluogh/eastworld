@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  <a href="https://discord.gg/FYGqsfMp">💬 Get help on discord</a>
+  <a href="https://discord.gg/9V5URE9f4T">💬 Get help on discord</a>
 </p>
 
 eastworld is an open-source, language-agnostic framework for adding Generative
@@ -236,7 +236,7 @@ Studio workflow.
 ### Coming Soon: SDKs for Game & Visual Novel Engines:
 
 Have requests for one in particular? Ask in
-[the discord](https://discord.gg/FYGqsfMp)
+[the discord](https://discord.gg/9V5URE9f4T)
 
 # Misc
 

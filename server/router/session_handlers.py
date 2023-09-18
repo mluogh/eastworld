@@ -12,6 +12,7 @@ from game.session import Session
 from game.ti_retriever import TIRetriever
 from llm.base import LLMBase
 from schema import (
+    AgentDef,
     Conversation,
     GameDef,
     Knowledge,
@@ -32,7 +33,9 @@ from server.schema.debug import (
     InteractWithDebug,
     MessageWithDebug,
 )
+from server.security.auth import authenticate
 from server.typecheck_fighter import RedisType
+from server.util.rate_limit import rate_limiter
 
 router = APIRouter(prefix="/session", tags=["Game Sessions"])
 
@@ -53,7 +56,36 @@ def get_gen_agent(agent: str, session: Session):
     return gen_agent
 
 
-@router.post("/create", operation_id="create_session", response_model=str)
+def get_agent_def(agent: str, session: Session) -> AgentDef:
+    agent_def = next(
+        (
+            gen_agent
+            for gen_agent in session.game_def.agents
+            if str(gen_agent.uuid) == agent
+        ),
+        None,
+    )
+    if not agent_def:
+        agent_def = next(
+            (
+                gen_agent
+                for gen_agent in session.game_def.agents
+                if gen_agent.name == agent
+            ),
+            None,
+        )
+        if not agent_def:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+    return agent_def
+
+
+@router.post(
+    "/create",
+    operation_id="create_session",
+    response_model=str,
+    dependencies=[Depends(authenticate)],
+)
 async def create_session(
     game_uuid: str,
     sessions: SessionsType = Depends(get_sessions),
@@ -118,7 +150,10 @@ async def create_session(
 
 
 @router.get("/list", operation_id="list_sessions", response_model=List[str])
-def get_sessions_list(game_uuid: str, sessions: SessionsType = Depends(get_sessions)):
+def get_sessions_list(
+    game_uuid: str,
+    sessions: SessionsType = Depends(get_sessions),
+):
     """Lists all active sessions for a given Game.
 
     <h3>Args:</h3>
@@ -135,15 +170,27 @@ def get_sessions_list(game_uuid: str, sessions: SessionsType = Depends(get_sessi
     ]
 
 
+@router.get(
+    "/{session_uuid}/active", operation_id="is_session_active", response_model=bool
+)
+def is_session_active(
+    session_uuid: str,
+    sessions: SessionsType = Depends(get_sessions),
+):
+    return uuid.UUID(session_uuid, version=4) in sessions.keys()
+
+
 @router.post(
     "/{session_uuid}/start_chat",
     operation_id="start_chat",
+    dependencies=[Depends(authenticate)],
 )
 async def start_conversation(
     session_uuid: str,
     agent: str,
-    conversation: Conversation,
-    history: List[Message],
+    history: Optional[List[Message]] = None,
+    correspondent: Optional[str] = None,
+    conversation: Optional[Conversation] = None,
     sessions: SessionsType = Depends(get_sessions),
 ):
     """Starts a chat with the given agent. Clears previous conversation
@@ -153,6 +200,7 @@ async def start_conversation(
 
     - **session_uuid** (str): the uuid of the session
     - **agent** (str): either the uuid or the name of the agent.
+    - **correspondent** (str): the character with whom the agent is speaking to.
     - **conversation** (Conversation): conversation context. See definition.
     - **history** List[Message]: pre-populate the conversation so you start
     as though you were mid-conversation
@@ -162,12 +210,20 @@ async def start_conversation(
     """
     session = sessions[UUID4(session_uuid)]
     gen_agent = get_gen_agent(agent, session)
+    if not conversation:
+        conversation = Conversation()
 
-    gen_agent.startConversation(conversation, history)
+    if correspondent:
+        conversation = Conversation(correspondent=get_agent_def(correspondent, session))
+
+    return gen_agent.startConversation(conversation, history or [])
 
 
 @router.post(
-    "/{session_uuid}/chat", operation_id="chat", response_model=MessageWithDebug
+    "/{session_uuid}/chat",
+    operation_id="chat",
+    response_model=MessageWithDebug,
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def chat(
     session_uuid: str,
@@ -206,6 +262,7 @@ async def chat(
     "/{session_uuid}/interact",
     operation_id="interact",
     response_model=InteractWithDebug,
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def interact(
     session_uuid: str,
@@ -247,6 +304,7 @@ async def interact(
     "/{session_uuid}/act",
     operation_id="action",
     response_model=Optional[ActionCompletionWithDebug],
+    dependencies=[Depends(authenticate), Depends(rate_limiter)],
 )
 async def act(
     session_uuid: str,
@@ -282,7 +340,12 @@ async def act(
     return action_with_debug
 
 
-@router.post("/{session_uuid}/guardrail", operation_id="guardrail", response_model=int)
+@router.post(
+    "/{session_uuid}/guardrail",
+    operation_id="guardrail",
+    response_model=int,
+    dependencies=[Depends(authenticate)],
+)
 async def guardrail(
     session_uuid: str,
     agent: str,
@@ -308,7 +371,12 @@ async def guardrail(
     return await gen_agent.guardrail(message)
 
 
-@router.post("/{session_uuid}/query", operation_id="query", response_model=List[int])
+@router.post(
+    "/{session_uuid}/query",
+    operation_id="query",
+    response_model=List[int],
+    dependencies=[Depends(authenticate)],
+)
 async def query(
     session_uuid: str,
     agent: str,
@@ -346,6 +414,7 @@ async def query(
 @router.put(
     "/sync",
     operation_id="sync_sessions_to_game_defs",
+    dependencies=[Depends(authenticate)],
 )
 async def updateSessions(
     game_uuid: str,

@@ -3,7 +3,12 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 from game.agent import Conversation, GenAgent, Knowledge
-from game.prompt_helpers import generate_functions_from_actions, get_chat_messages
+from game.prompt_helpers import (
+    generate_functions_from_actions,
+    get_action_messages,
+    get_chat_messages,
+    get_interact_messages,
+)
 from schema import (
     Action,
     ActionCompletion,
@@ -110,7 +115,7 @@ async def test_interact():
     await agent.interact("What's up?")
 
     llm.completion.assert_called_once_with(
-        get_chat_messages(
+        get_interact_messages(
             knowledge,
             Conversation(),
             [m.description for m in memories],
@@ -122,7 +127,7 @@ async def test_interact():
     await agent.interact("Wtf?")
 
     llm.completion.assert_any_call(
-        get_chat_messages(
+        get_interact_messages(
             knowledge,
             Conversation(),
             [memory.description for memory in memories],
@@ -230,13 +235,12 @@ async def test_act():
     resp, _ = await agent.act("I will usurp your throne!")
 
     llm.action_completion.assert_called_once_with(
-        get_chat_messages(
+        get_action_messages(
             knowledge,
             Conversation(),
             [memory.description for memory in memories],
             [
                 Message(role="user", content="I will usurp your throne!"),
-                Message(role="system", content="You must return a function call."),
             ],
         ),
         generate_functions_from_actions(agent_def.actions),

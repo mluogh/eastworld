@@ -8,6 +8,7 @@ from typing import List
 from aiohttp import ClientSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_limiter import FastAPILimiter  # type: ignore
 from redis.asyncio import Redis
 
 from llm.openai import OpenAIInterface
@@ -15,6 +16,7 @@ from schema import GameDef
 from server.context import SessionsType
 from server.router import (
     agent_def_handlers,
+    authorization_handlers,
     game_def_handlers,
     llm_handlers,
     session_handlers,
@@ -22,12 +24,11 @@ from server.router import (
 )
 from server.typecheck_fighter import pipeline_exec
 from server.util.json_loader import load_games_from_path
+from server.util.sso import generate_github_sso, generate_google_sso
 
 GAMES_DEFS_SET = "GAME_DEFS"
 
-origins = [
-    "http://localhost:3000",
-]
+# TODO: Add this to a config file
 
 
 @asynccontextmanager
@@ -47,6 +48,9 @@ async def lifespan(app: FastAPI):
     chat_model = parser.get("llm", "chat_model")
     embedding_size = parser.getint("llm", "embedding_size")
 
+    google_sso = generate_google_sso(parser=parser)
+    github_sso = generate_github_sso(parser=parser)
+
     openai_http_client = ClientSession()
     llm = OpenAIInterface(
         api_key=key,
@@ -56,12 +60,14 @@ async def lifespan(app: FastAPI):
         client_session=openai_http_client,
     )
 
+    await FastAPILimiter.init(redis_client)  # type: ignore
+
     dev_mode = parser.getboolean("server", "dev_mode", fallback=False)
     if dev_mode:
         # getLogger returns the same singleton everywhere, so usages in
         # controllers should log to this stdout stream handler as well
         logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
         handler = logging.StreamHandler()
         logger.addHandler(handler)
 
@@ -82,6 +88,8 @@ async def lifespan(app: FastAPI):
         "sessions": sessions,
         "parser": parser,
         "llm": llm,
+        "google_sso": google_sso,
+        "github_sso": github_sso,
     }
 
     if dev_mode:
@@ -111,7 +119,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -122,3 +130,4 @@ app.include_router(llm_handlers.router)
 app.include_router(game_def_handlers.router)
 app.include_router(agent_def_handlers.router)
 app.include_router(session_handlers.router)
+app.include_router(authorization_handlers.router)

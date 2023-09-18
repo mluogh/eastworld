@@ -1,23 +1,30 @@
 from typing import Any
 from unittest import IsolatedAsyncioTestCase
+import configparser
 
 from fakeredis import aioredis
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 
 from schema import AgentDef, GameDef
-from server.context import get_redis
+from server.context import get_redis, get_config_parser
 from server.main import app
 
 
 class AgentHandlerTest(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self._redis_fake: Any = aioredis.FakeRedis()
+        parser = configparser.ConfigParser()
+        parser.read("example_config.ini")
 
         def get_test_redis():
             return self._redis_fake
 
+        def get_test_parser():
+            return parser
+
         app.dependency_overrides[get_redis] = get_test_redis
+        app.dependency_overrides[get_config_parser] = get_test_parser
         self._client = AsyncClient(app=app, base_url="http://test")
 
         resp = await self._client.post(
