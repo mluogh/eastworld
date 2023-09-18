@@ -7,8 +7,9 @@ from fastapi_sso.sso.github import GithubSSO  # type: ignore
 from fastapi_sso.sso.google import GoogleSSO  # type: ignore
 from jose import jwt
 
-from server.context import get_config_parser, get_github_sso, get_google_sso
+from server.context import get_config_parser, get_github_sso, get_google_sso, get_redis
 from server.security.auth import authenticate
+from server.typecheck_fighter import RedisType
 
 router = APIRouter(
     prefix="/auth",
@@ -35,6 +36,7 @@ async def google_authorize(
 async def google_callback(
     request: Request,
     google_sso: GoogleSSO = Depends(get_google_sso),
+    redis: RedisType = Depends(get_redis),
     parser: ConfigParser = Depends(get_config_parser),
 ):
     with google_sso:
@@ -46,6 +48,9 @@ async def google_callback(
 
     if not google_sso.state:
         raise HTTPException(status_code=404, detail="Client callback url not found")
+
+    if user.email:
+        await redis.sadd("Users", user.email)
 
     secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
     token = jwt.encode(user.dict(), key=secret_key, algorithm="HS256")
@@ -74,6 +79,7 @@ async def github_authorize(
 async def github_callback(
     request: Request,
     github_sso: GithubSSO = Depends(get_github_sso),
+    redis: RedisType = Depends(get_redis),
     parser: ConfigParser = Depends(get_config_parser),
 ):
     with github_sso:
@@ -85,6 +91,9 @@ async def github_callback(
 
     if not github_sso.state:
         raise HTTPException(status_code=404, detail="Client callback url not found")
+
+    if user.email:
+        await redis.sadd("Users", user.email)
 
     secret_key = parser.get("oauth2", "SECRET_KEY", fallback="secret_key")
     token = jwt.encode(user.dict(), key=secret_key, algorithm="HS256")
