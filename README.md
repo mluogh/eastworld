@@ -18,16 +18,13 @@ This framework has two goals
   chat - Agent Actions, Emotion Queries, Player Guardrails, etc. - and expose it
   in a simple small API
 
-<figure>
-  <p align="center">
-    <img src=".github/detective_game.gif" alt="Description of GIF" width="90%">
+https://github.com/mluogh/eastworld/assets/8098155/6ed272f0-64d2-458e-bb8a-27a1e0741a9b
+
+<figcaption align="center">
+  <p align="center"><i>A 
+    <a href="https://github.com/mluogh/grontown">playable</a> murder mystery game whose Agents were made with eastworld</i>
   </p>
-  <figcaption align="center">
-    <p align="center"><i>A 
-      <a href="https://github.com/game-kings/detective">playable</a> murder mystery novella whose Agents were made with eastworld</i>
-    </p>
-  </figcaption>
-</figure>
+</figcaption>
 
 <p align="center">
   <a href="https://www.youtube.com/watch?feature=player_embedded&v=VSqIzjOk5p4" target="_blank">
@@ -185,7 +182,7 @@ This runs by default on `http://localhost:8000`
 We have an example game that you can play to get your bearings and see what the
 framework is capable of.
 
-[Shock in San Francisco!](https://github.com/game-kings/detective)
+[nob hill noir](https://github.com/mluogh/grontown)
 
 # Create
 
