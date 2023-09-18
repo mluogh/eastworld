@@ -47,7 +47,11 @@ class OpenAIInterface(LLMBase):
 
         if completion.get("function_call"):
             func_call = completion.get("function_call")
-            args = json.loads(func_call["arguments"])
+            # TODO: Sometimes the arguments are malformed.
+            try:
+                args = json.loads(func_call["arguments"])
+            except json.JSONDecodeError:
+                args: Any = {}
 
             return ActionCompletion(action=func_call["name"], args=args)
 

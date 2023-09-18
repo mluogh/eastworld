@@ -5,9 +5,12 @@ from pydantic import UUID4
 
 from game.memory import GenAgentMemory
 from game.prompt_helpers import (
+    clean_response,
     generate_functions_from_actions,
+    get_action_messages,
     get_chat_messages,
     get_guardrail_query,
+    get_interact_messages,
     get_query_messages,
     get_rate_function,
     rating_to_int,
@@ -69,7 +72,7 @@ class GenAgent:
 
         memories = await self._queryMemories(message)
 
-        messages = get_chat_messages(
+        messages = get_interact_messages(
             self._knowledge,
             self._conversation_context,
             memories,
@@ -79,7 +82,7 @@ class GenAgent:
         completion = await self._llm_interface.completion(messages, functions)
 
         if isinstance(completion, Message):
-            self._conversation_history.append(completion)
+            self._conversation_history.append(clean_response(self.name, completion))
 
         return completion, messages
 
@@ -97,7 +100,7 @@ class GenAgent:
 
         completion = await self._llm_interface.chat_completion(messages)
 
-        self._conversation_history.append(completion)
+        self._conversation_history.append(clean_response(self.name, completion))
         return completion, messages
 
     async def act(
@@ -108,14 +111,11 @@ class GenAgent:
 
         memories = await self._queryMemories(message)
 
-        messages = get_chat_messages(
+        messages = get_action_messages(
             self._knowledge,
             self._conversation_context,
             memories,
             self._conversation_history,
-        )
-        messages.append(
-            Message(role="system", content="You must return a function call.")
         )
         functions = generate_functions_from_actions(self._knowledge.agent_def.actions)
 

@@ -1,3 +1,4 @@
+import configparser
 from typing import Any
 from unittest import IsolatedAsyncioTestCase
 
@@ -7,17 +8,23 @@ from httpx import AsyncClient
 from pydantic import UUID4
 
 from schema import GameDef
-from server.context import get_redis
+from server.context import get_config_parser, get_redis
 from server.main import app
 
 
 class GameHandlerTest(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self._redis_fake: Any = aioredis.FakeRedis()
+        parser = configparser.ConfigParser()
+        parser.read("example_config.ini")
+
+        def get_test_parser():
+            return parser
 
         def get_test_redis():
             return self._redis_fake
 
+        app.dependency_overrides[get_config_parser] = get_test_parser
         app.dependency_overrides[get_redis] = get_test_redis
         self._client = AsyncClient(app=app, base_url="http://test")
 
