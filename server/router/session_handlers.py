@@ -175,14 +175,9 @@ def get_sessions_list(
 )
 def is_session_active(
     session_uuid: str,
-    game_uuid: str,
     sessions: SessionsType = Depends(get_sessions),
 ):
-    session = sessions.get(uuid.UUID(session_uuid))
-    if not session:
-        return False
-
-    return str(session.game_def.uuid) == game_uuid
+    return uuid.UUID(session_uuid, version=4) in sessions.keys()
 
 
 @router.post(
