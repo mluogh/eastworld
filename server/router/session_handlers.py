@@ -170,6 +170,16 @@ def get_sessions_list(
     ]
 
 
+@router.get(
+    "/{session_uuid}/active", operation_id="is_session_active", response_model=bool
+)
+def is_session_active(
+    session_uuid: str,
+    sessions: SessionsType = Depends(get_sessions),
+):
+    return uuid.UUID(session_uuid, version=4) in sessions.keys()
+
+
 @router.post(
     "/{session_uuid}/start_chat",
     operation_id="start_chat",
