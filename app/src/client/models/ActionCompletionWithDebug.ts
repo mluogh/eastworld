@@ -3,11 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Conversation } from './Conversation';
+import type { ActionCompletion } from './ActionCompletion';
 import type { Message } from './Message';
 
-export type Body_start_chat = {
-    history?: Array<Message>;
-    conversation?: Conversation;
+export type ActionCompletionWithDebug = {
+    action?: ActionCompletion;
+    debug?: Array<Message>;
 };
 

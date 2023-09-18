@@ -94,9 +94,11 @@ export default function Agent() {
     await GameSessionsService.startChat(
       sessionUuid!,
       params.agentUuid!,
+      "", // todo: use options when generating client
       emptyChat,
     );
     setMessages([]);
+    setDebugMessages([]);
 
     setChatStarted(true);
   };
