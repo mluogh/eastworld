@@ -72,7 +72,13 @@ Do not offer information that is irrelevant to the current conversation.
     instructions.append(conversation.instructions or "")
     instructions.append(
         """NEVER mention you are an AI language model. You MUST stay in character and \
-respond ONLY as {knowledge.agent_def.name}."""
+respond ONLY as {knowledge.agent_def.name}. ONLY USE information in {knowledge.agent_def.name}'s world.
+Think step by step when responding. 
+Consider the following:
+1. Would {knowledge.agent_def.name} have enough information to answer this question?
+2. How would {knowledge.agent_def.name} respond given the answer to the previous question?
+3. How would {knowledge.agent_def.name} respond given the context of the conversation?
+"""
     )
     system_prompt += "\n".join(instructions)
 
@@ -95,8 +101,8 @@ def get_chat_messages(
     history: List[Message],
 ) -> List[Message]:
     return (
-        [get_system_prompt(knowledge, conversation, facts)]
-        + _format_history(knowledge, conversation, history)
+        _format_history(knowledge, conversation, history)
+        + [get_system_prompt(knowledge, conversation, facts)]
         + [
             Message(
                 role="assistant",
@@ -115,8 +121,12 @@ def get_interact_messages(
     history: List[Message],
 ) -> List[Message]:
     return (
-        [get_system_prompt(knowledge, conversation, facts)]
-        + _format_history(knowledge, conversation, history)
+        insert_system_message(
+            get_system_prompt(knowledge, conversation, facts),
+            _format_history(knowledge, conversation, history),
+        )
+        # _format_history(knowledge, conversation, history)
+        # + [get_system_prompt(knowledge, conversation, facts)]
         + [
             Message(
                 role="assistant",
@@ -173,6 +183,15 @@ def clean_response(agent_name: str, message: Message) -> Message:
     if message.content.startswith(interact_prepend):
         message.content = message.content[len(interact_prepend) :]
     return message
+
+
+def insert_system_message(
+    system_message: Message, conversation: List[Message]
+) -> List[Message]:
+    if conversation:
+        return conversation[:-1] + [system_message] + [conversation[-1]]
+    else:
+        return [system_message]
 
 
 def get_query_messages(
