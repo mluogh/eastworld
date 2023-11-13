@@ -14,6 +14,8 @@ from game.prompt_helpers import (
     get_query_messages,
     get_rate_function,
     rating_to_int,
+    get_broad_plan_message,
+    format_plan
 )
 from llm.base import LLMBase
 from schema import ActionCompletion, Conversation, Knowledge, Memory, Message
@@ -123,6 +125,18 @@ class GenAgent:
             await self._llm_interface.action_completion(messages, functions),
             messages,
         )
+
+    async def plan(self):
+        memories = await self._queryMemories(None)
+
+        message = get_broad_plan_message(self._knowledge,memories)
+
+        completion = await self._llm_interface.completion([message], [])
+        plan_steps = format_plan(completion.content)
+
+        for step in plan_steps:
+            await self.add_memory(Memory(description=step)) 
+
 
     async def query(self, queries: List[str]) -> List[int]:
         """Returns a numerical answer to queries into the Agent's

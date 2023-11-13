@@ -8,6 +8,7 @@ from game.prompt_helpers import (
     get_action_messages,
     get_chat_messages,
     get_interact_messages,
+    get_broad_plan_message
 )
 from schema import (
     Action,
@@ -249,3 +250,33 @@ async def test_act():
     assert isinstance(resp, ActionCompletion)
     assert resp.action == "attack"
     assert resp.args["character"] == "Player"
+
+
+async def test_plan():
+    memory: Any = AsyncMock()
+    llm: Any = AsyncMock()
+    # TODO: this is here because the assert() compares the reference, which gets mutated
+    # after; Can we remove this?
+    llm.completion = AsyncCopyingMock()
+    memory.add_memory = AsyncCopyingMock()
+
+    agent_def = create_agent_def()
+
+    knowledge = Knowledge(
+        game_description="Game description", agent_def=agent_def, shared_lore=[]
+    )
+    agent = await GenAgent.create(knowledge, llm, memory)
+    llm.completion.return_value = Message(
+        role="assistant", content="go to Oak Hill College to take classes at 10:00 am, 3) work on his new music composition from 1:00 pm to 5:00 pm, 4) have dinner at 5:30 pm, 5) finish school assignments and go to bed by 11:00 pm."
+    )
+ 
+    await agent.plan()
+
+    llm.completion.assert_called_once_with(
+        [get_broad_plan_message(knowledge,[])], 
+        []             
+    ) 
+
+    memory.add_memory.assert_called_with(
+        Memory(description="Plan: finish school assignments and go to bed by 11:00 pm.")      
+    )

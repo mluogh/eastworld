@@ -1,3 +1,5 @@
+import re
+
 from typing import Dict, List, Optional
 
 from schema import Action, ActionCompletion, Conversation, Knowledge, Message, Parameter
@@ -283,3 +285,52 @@ def rating_to_int(completion: Optional[ActionCompletion]) -> int:
         return -1
 
     return _RATING_ENUM_MAP[completion.args["rating"]]
+
+
+def get_broad_plan_message(knowledge:Knowledge, facts:List[str]):
+    fragment = [
+        """You are roleplaying as a character named {knowledge.agent_def.name}.
+Description of {knowledge.agent_def.name}: 
+{knowledge.agent_def.description} 
+\n Description of the world you live in: {knowledge.game_description}.
+ """
+    ]
+
+    if knowledge.agent_def.core_facts.strip():
+        fragment.append(
+            """{knowledge.agent_def.name} knows the following: 
+{knowledge.agent_def.core_facts}"""
+        )
+
+    if facts:
+        fragment.append(
+            "{knowledge.agent_def.name} has the following memories: \n{facts}"
+        )
+
+    fragment.append(
+        "Today is Monday. Here is {knowledge.agent_def.name}'s plan today in broad-strokes (with the time of the day. e.g., have a lunch at 12:00 pm, watch TV from 7 to 8 pm): 1) wake up at 7.00am, 2)"
+    )
+    
+
+    full_prompt = "\n\n".join(
+        [
+            piece.format(
+                knowledge=knowledge, facts="\n".join(facts)
+            )
+            for piece in fragment
+        ]
+    )
+
+    return Message(role="system", content=full_prompt)
+
+
+def format_plan(plan_completion:str):
+    steps = re.split(r"\d+\)",plan_completion)
+    return ["Plan: wake up at 7.00am"] + [
+        "Plan:" + step for step in steps
+    ]
+
+
+
+
+    
